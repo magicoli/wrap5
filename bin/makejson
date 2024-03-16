@@ -74,7 +74,7 @@ if( file_exists('playlist.php') ) {
 
 if(file_exists('_pagetitle.txt')) {
     $name = trim(file_get_contents('_pagetitle.txt'));
-    if($name != $data['name']) {
+    if( !empty($name) && ( !isset($data['name']) || $name != $data['name'] ) ) {
         $data['name'] = $name;
         $changes = true;
     }
@@ -82,7 +82,9 @@ if(file_exists('_pagetitle.txt')) {
 
 if($changes) {
     // Écrire le tableau PHP de retour dans le fichier JSON
-    copy('.wrap.json', '.wrap.json.backup');
+    if(file_exists('.wrap.json')) {
+        copy('.wrap.json', '.wrap.json.backup');
+    }
     file_put_contents('.wrap.json', json_encode($data, JSON_PRETTY_PRINT));
     // echo json_encode($data, JSON_PRETTY_PRINT);
 
