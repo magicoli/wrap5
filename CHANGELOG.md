@@ -1,6 +1,6 @@
 # Changelog
 
-## 3.1.0
+3.1.0
 * front-end:
   - updated playable formats
   - new flex/grid-based default theme
@@ -24,23 +24,21 @@
 * removed -threads auto from ffmpeg args
 * added vsync to moviemerge
 
-## 3.0.3
+3.0.3
 * removed useless files from release package
 * cleaner changelog and minor cosmetic changes
 * fix hardcoded path
 * new back-end scripts
 
-## 3.0
-This is a major upgrade. However, there is no specific upgrade path for the web
-content, it is backward compatible with 2.x as the actual major change is the
-inclusion of new back-end scripts.
+3.0.0
+* This is a major upgrade. However, there is no specific upgrade path for the web content, it is backward compatible with 2.x as the actual major change is the inclusion of new back-end scripts.
 * PHP7-ready
 * Optimize bandwidth, load video only on request
 * Optimize video display
 * New back-end tools
   (old ones actually, merged from another repo, will be maintained here now)
 
-## 2.4.8
+2.4.8
 * new: bootstrap layout, becomes default
 * fix: protect wrap own directory
 * added: support for Canon .MXF files
@@ -54,7 +52,7 @@ inclusion of new back-end scripts.
 * deprecated: former browser.* naming (still compatible though)
 * fix: only try to detect mobile if Mobile_Detect class is present
 
-## 1.11
+1.11.0
 * new: SSL support
 * new: theming (work in progress)
 * new: handle remote pages
@@ -71,7 +69,7 @@ inclusion of new back-end scripts.
 * wrap.php: allow one simple text line in links.txt, not converted as link
 * added info from comment additions in playlist
 
-## 1.8
+1.8.0
 * First stable release as W.R.A.P.
 * Renamed browser* files to wrap
 * split main code, functions and facebook auth
