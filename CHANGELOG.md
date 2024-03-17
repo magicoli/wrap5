@@ -1,49 +1,23 @@
 ## Changelog
 
-Unreleased changes
-* fix cursor over favorite button
-* merge legacy v3 fix deprecated (while(list($key, $value)...) (for ref only)
-* ignore composer.lock in repo
-* makejson avoid minor warning messages
-* Updated README and CHANGELOG
-* set minimum php version to 7.4
-* ignore vendor
-* use legacy thumbnail if present
-* use files sorting order and data from .wrap.json
-* makejson (legacy playlist converter)
-* optimized navigation
-* added favorites filter
-* fix favorites in player
-* favorites fix favorites wrongly preservved between pages
-* add favorite button to player
-* renamed videojs.js as player.js
-* added media title to player
-* cleaner html coded, moved js to videojs.js
-* fix modal closed when using player controls
-* fix url and path encoding
-* added player modal
-* click on thumb to play
-* player added previous and next buttons
-* added player with playlist
-* added player
-* added video.js and webpack js libraries
-* updated content grid style
-* show content as thumbnails grid
-* add thumbnails to content, fallback to fontawesome icon
-* added ffmpeg library
-* fix content margin top
-* fix tree levels
-* fix infinite loop for site main page
-* lectures des paramètres de dossier dans .wrap.json, ignore les fichiers cachés et les anciens fichiers de préférences
-* reach each folder parameters in .wrap.json
-* navigation tree
-* base navigation
-* added mimey composer library
-* new 5.x branch, let's redo all this again
-* Merge remote-tracking branch 'origin/4.x' into 5.x
-* Merge branch 'master' of git.magiiic.com:magic/wrap
-* cleancasting allow delete files with duration longer than -t argument
+5.0.0-dev
+* new 5.x branch, let's redo all this again, but better
+* rewrote basic navigation and player funtionalties
+* new favorite button and filter
+* thumbnails
+  - fallback to fontawesome icon instead of images
+  - auto generate video thumbnails if not present
+* minimum php version to 7.4
+* read each folder parameters in .wrap.json
+  - new makejson script (legacy playlist converter)
+* cleancasting new time argument (delete files with duration longer than -t)
 * castingsplit fix IFS bug
+* composer libraries
+  - mimey (to get mime types)
+  - video.js (the player)
+  - ffmpeg (for thumbnails and future video manipulations)
+  - bump-version (dev, to bump versions)
+  - webpack (dev)
 
 3.1.1
 * new script checkmp4
