@@ -181,15 +181,16 @@ nav li {
     margin: 0.25em 0;
 }
 
-@media (min-width: 768px) {
+@media (min-width: 720px) {
     #main {
         display: grid;
-        grid-template-columns: auto 3fr;
+        grid-template-columns: 210px 3fr;
         gap: 20px;
     }
 
     #nav {
         grid-column: 1;
+        /* max-width: 220px; */
     }
     #content {
         grid-column: 2;
