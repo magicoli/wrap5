@@ -1817,6 +1817,7 @@ dialog:modal {
 /* .button-favorite.active, */
 .tag-favorite .button.favorite,
 .vjs-control-bar .vjs-fav-button.active {
+    opacity: 0.5;
     color: red !important;
 }
 

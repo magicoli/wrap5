@@ -122,11 +122,13 @@ li.list-item span.thumbnail {
 }
 
 .list-item .button {
-    background-color: var(--primary-color);
+    background-color: var(--secondary-color);
     color: var(--light-color);
-    opacity: 0.5;
+    opacity: 0.25;
     border-radius: 5px;
     padding: 5px;
+    cursor: pointer; /* Ajoutez cette ligne */
+
 }
 .list-item .button:hover {
     opacity: 1;
