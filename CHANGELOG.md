@@ -1,5 +1,9 @@
 ## Changelog
 
+5.0.0-dev-2
+* preserve child folders order
+* nav max width
+
 5.0.0-dev
 * new 5.x branch, let's redo all this again, but better
 * rewrote basic navigation and player funtionalties

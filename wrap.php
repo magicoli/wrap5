@@ -13,7 +13,7 @@ class Wrap {
     private $title = '';
 
     public function __construct() {
-        define('WRAP_VERSION', '5.0.0-dev');
+        define('WRAP_VERSION', '5.0.0-dev-1');
         
         $this->init();
         // $this->update_cache();
