@@ -1,4 +1,100 @@
-# Changelog
+## Changelog
+
+Unreleased changes
+* fix cursor over favorite button
+* merge legacy v3 fix deprecated (while(list($key, $value)...) (for ref only)
+* ignore composer.lock in repo
+* makejson avoid minor warning messages
+* Updated README and CHANGELOG
+* set minimum php version to 7.4
+* ignore vendor
+* use legacy thumbnail if present
+* use files sorting order and data from .wrap.json
+* makejson (legacy playlist converter)
+* optimized navigation
+* added favorites filter
+* fix favorites in player
+* favorites fix favorites wrongly preservved between pages
+* add favorite button to player
+* renamed videojs.js as player.js
+* added media title to player
+* cleaner html coded, moved js to videojs.js
+* fix modal closed when using player controls
+* fix url and path encoding
+* added player modal
+* click on thumb to play
+* player added previous and next buttons
+* added player with playlist
+* added player
+* added video.js and webpack js libraries
+* updated content grid style
+* show content as thumbnails grid
+* add thumbnails to content, fallback to fontawesome icon
+* added ffmpeg library
+* fix content margin top
+* fix tree levels
+* fix infinite loop for site main page
+* lectures des paramètres de dossier dans .wrap.json, ignore les fichiers cachés et les anciens fichiers de préférences
+* reach each folder parameters in .wrap.json
+* navigation tree
+* base navigation
+* added mimey composer library
+* new 5.x branch, let's redo all this again
+* Merge remote-tracking branch 'origin/4.x' into 5.x
+* Merge branch 'master' of git.magiiic.com:magic/wrap
+* cleancasting allow delete files with duration longer than -t argument
+* castingsplit fix IFS bug
+
+3.1.1
+* new script checkmp4
+* new script cleancasting
+* new script castingsplit
+* new script castingselection
+* new .htaccess
+* new TOC (table of content)
+* added php-ffmpeg/php-ffmpeg package
+* added mkv extension to mediacopy
+* disabled MacOS Safari notice
+* don't exit if notify-send is not installed, only display message
+* reference only: useful resource to find crisper image for thumbnails, worth a try
+
+* casting-server, casting-client: don't try to use "open" command
+* casting-client
+  - use mediawatch-remote
+* casting-server
+  - added VS Code as editor
+* castingchecktimes 
+  - avoid error caused by temp qt-thumbnails files
+* casting-helpers 
+  - don't replace director by client
+  - read prefs from base, director and job directory
+  - store client/server status to castingmode variable
+* castingrolesbycomment
+  - fix sort order for more than 9 castings
+  - make TOC if toc folder is present
+  - allow several roles
+* makemp4
+  - error with multi lines ffprobe result
+  - aliases issues
+  - blur
+* makeplaylist
+  - correctly handle comedians in multiple sections
+* mediawatch
+  - added speech notification
+  - fix launch without setting director
+  - fix merge errors
+  - fix nothing found if director not set
+  - also detect new completed files in upload, not only temp php files
+  - detect if upload is for current director, correctly quit if match
+  - exit with error if notify-send is not installed
+* rethumb-comedian
+  - rethumb-comedian added tests, only process if comedian and video found
+  - ignore comments when finding matching video
+  - fix error when time is between 0 and 1
+  - use casting-helpers
+  - allow floating number for time
+  - turn off on screen error reporting
+  - fix undefined constant notice
 
 3.1.0
 * front-end:
