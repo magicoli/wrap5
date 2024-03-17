@@ -287,7 +287,7 @@ class Wrap_Folder {
     private $stop_navigation = false;
 
     public function __construct($requested_url) {
-        
+
         if(empty($requested_url)) {
             $requested_url = $_SERVER['REQUEST_URI'];
         }
@@ -338,6 +338,7 @@ class Wrap_Folder {
         $files = scandir($this->path);
         $ignore_files = array("playlist.php", "browser.prefs");
         if(is_array($files)) {
+            $childs = [];
             foreach ($files as $file) {
                 if ($file[0] == '.' || $file[0] == '_'  || $file[0] == '#' || substr($file, -1) == '~' ) {
                     continue;
@@ -346,10 +347,21 @@ class Wrap_Folder {
                     continue;
                 }
                 if (is_dir($this->path . '/' . $file)) {
-                    $this->childs[] = $file;
+                    $childs[] = $file;
                 } else {
                     $this->files[] = $file;
                 }
+            }
+            if( !empty($childs) && ! empty ($this->params['folders']) && is_array($this->params['folders']) ) {
+                foreach($this->params['folders'] as $folder => $name) {
+                    if(in_array($folder, $childs)) {
+                        $this->childs[] = $folder;
+                    }
+                }
+                // Add non sorted folders at the end
+                $this->childs = array_merge($this->childs, $childs);
+            } else {
+                $this->childs = $childs;
             }
         }
     }
