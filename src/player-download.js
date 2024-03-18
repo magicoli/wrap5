@@ -7,23 +7,26 @@ export function setupDownloadButton(player, atts = {}) {
     player.on('ready', function() {
 
         var downloadButton = document.createElement('button');
+        
         downloadButton.innerHTML = 'Download folder';
         downloadButton.className = 'download-folder-button';
-
+        
         // Créer un nouvel élément li et lui attribuer la classe action
         var li = document.createElement('li');
         li.className = 'action';
-
+        
         // Ajouter le bouton à l'élément li
         li.appendChild(downloadButton);
-
+        
         // Ajouter l'élément li à l'élément actions
         document.getElementById('actions').appendChild(li);
-
+        
         // Gestionnaire d'événements pour le bouton de téléchargement
         downloadButton.addEventListener('click', function() {
+            var initialButtonContent = downloadButton.textContent;
+            
             downloadButton.disabled = true;
-
+            
             // Obtenir la liste de lecture actuelle
             var currentPlaylist = player.playlist();
             
@@ -32,6 +35,7 @@ export function setupDownloadButton(player, atts = {}) {
                 downloadButton.disabled = false; // Réactiver le bouton
                 return;
             }
+            downloadButton.textContent = 'Preparing , please wait...';
             
             // Créer une nouvelle instance JSZip
             var zip = new JSZip();
@@ -42,7 +46,6 @@ export function setupDownloadButton(player, atts = {}) {
             // Créer un compteur pour suivre le nombre de fichiers ajoutés
             var filesAdded = 1;
             
-            var initialButtonContent = downloadButton.textContent;
             // Ajouter chaque fichier de la liste de lecture au zip
             currentPlaylist.forEach(function(item, index) {
                 // Utiliser l'API Fetch pour récupérer les données du fichier
@@ -54,7 +57,7 @@ export function setupDownloadButton(player, atts = {}) {
                     return response.blob();
                 })
                 .then(function(blob) {
-                    downloadButton.textContent = 'Preparing ' + filesAdded + '/' + currentPlaylist.length;
+                    downloadButton.textContent = 'Packing ' + filesAdded + '/' + currentPlaylist.length;
                     // Extract the filename from the src attribute
                     var filename = item.sources.src.split('/').pop();
 
