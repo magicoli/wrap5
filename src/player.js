@@ -8,6 +8,7 @@ import videojsPlaylistUi from 'videojs-playlist-ui';
 import './player.css';
 
 import { setupFavorites } from './player-favorites.js';
+import { setupDownloadButton } from './player-download.js';
 
 window.videojs = videojs;
 
@@ -31,6 +32,7 @@ window.setupPlayer = function(playlist) {
         player.playlistUi();
 
         setupFavorites(player);
+        setupDownloadButton(player);
 
         // Créer un nouvel élément pour le titre de la vidéo
         var videoTitle = document.createElement('div');

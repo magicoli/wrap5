@@ -1,5 +1,10 @@
 ## Changelog
 
+Unreleased changes
+* new download button
+* save minisite root path
+* (dev) added npm file-saver and jzip packages
+
 5.0.0-dev-2
 * preserve child folders order
 * nav max width

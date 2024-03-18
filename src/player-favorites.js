@@ -153,7 +153,7 @@ export function setupFavorites(player) {
 
     // Ajouter un bouton pour afficher uniquement les favoris
     var favFilterButton = document.createElement('button');
-    favFilterButton.innerHTML = 'Afficher uniquement les favoris';
+    favFilterButton.innerHTML = 'Display favorites only';
     favFilterButton.className = 'fav-filter-button';
 
     // Créer un nouvel élément li et lui attribuer la classe action
@@ -188,7 +188,7 @@ export function setupFavorites(player) {
         document.head.appendChild(style);
 
         // Changer le texte du bouton pour permettre de réafficher tous les éléments
-        favFilterButton.innerHTML = 'Afficher tous les éléments';
+        favFilterButton.innerHTML = 'Display all';
         favFilterButton.removeEventListener('click', showFavorites);
         favFilterButton.addEventListener('click', showAll);
     }
