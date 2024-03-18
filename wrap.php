@@ -11,6 +11,7 @@ class Wrap {
     private $breadcrumb = '';
     private $content = '';
     private $title = '';
+    private $minisite_root;
 
     public function __construct() {
         define('WRAP_VERSION', '5.0.0-dev-1');
@@ -77,7 +78,7 @@ class Wrap {
         $requested_path = WRAP_DATA . urldecode($requested_url);
         if (is_dir($requested_path)) {
             $wrap_folder = new Wrap_Folder($requested_url);
-
+            $this->minisite_root = $wrap_folder->minisite_root;
             $this->content = $wrap_folder->get_content();
             $this->nav = $wrap_folder->get_nav();
             $this->breadcrumb = $wrap_folder->get_breadcrumb();
@@ -285,6 +286,7 @@ class Wrap_Folder {
     private $page_url;
     private $params = [];
     private $stop_navigation = false;
+    public $minisite_root;
 
     public function __construct($requested_url) {
 
@@ -551,8 +553,10 @@ class Wrap_Folder {
                 break;
             }
             $parents[] = $parent_url;
+            $currentPath = $parentPath;
             $parentPath = dirname($parentPath);
         }
+        $this->minisite_root = $currentPath;
         $parents = array_reverse($parents);
         $this->parents = $parents;
         return $parents;
