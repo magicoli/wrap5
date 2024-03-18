@@ -3,6 +3,10 @@ import { saveAs } from 'file-saver';
 
 // Ajouter un bouton pour télécharger les favoris
 export function setupDownloadButton(player, atts = {}) {
+    // Check if JSZip and file-saver libraries are available
+    if (!JSZip || !saveAs) {
+        return;
+    }
     
     player.on('ready', function() {
 
