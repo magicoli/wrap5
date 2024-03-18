@@ -30,11 +30,6 @@ export function setupDownloadButton(player, atts = {}) {
             // Obtenir la liste de lecture actuelle
             var currentPlaylist = player.playlist();
             
-            // Si la liste de lecture est vide, afficher un message d'erreur et arrêter l'exécution
-            if (currentPlaylist.length === 0) {
-                downloadButton.disabled = false; // Réactiver le bouton
-                return;
-            }
             downloadButton.textContent = 'Preparing , please wait...';
             
             // Créer une nouvelle instance JSZip
