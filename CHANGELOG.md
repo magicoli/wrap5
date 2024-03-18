@@ -1,9 +1,14 @@
 ## Changelog
 
-Unreleased changes
+5.0.0-dev-3
+* removed unnecessary empty playlist check
+* Revert "Check if JSZip and file-saver libraries are available"
+* This reverts commit 6ef8a5948e63ac05c817013d341baa201139332b.
+* Check if JSZip and file-saver libraries are available
+* download button show 'Preparing' message sooner
 * new download button
-* save minisite root path
 * (dev) added npm file-saver and jzip packages
+* save minisite root path
 
 5.0.0-dev-2
 * preserve child folders order
