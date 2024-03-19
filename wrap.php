@@ -70,6 +70,8 @@ class Wrap {
             // Copy the CSS file to the cache directory
             copy($source_file, $cache_file);
         }
+        $cache_url .= '?v=' . WRAP_VERSION;
+        
         return $cache_url;
     }
 
@@ -200,6 +202,7 @@ class Wrap {
             <title>{title}</title>
             <meta name="description" content="{description}">
             <meta name="keywords" content="{keywords}">
+            <meta name="generator" content="Wrap ' . WRAP_VERSION . '">
             
             <meta name="apple-mobile-web-app-capable" content="yes">
             <meta name="apple-mobile-web-app-status-bar-style" content="black">
