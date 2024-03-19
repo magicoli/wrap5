@@ -14,7 +14,7 @@ class Wrap {
     private $minisite_root;
 
     public function __construct() {
-        define('WRAP_VERSION', '5.0.0-dev-1');
+        define('WRAP_VERSION', '5.0.1-dev');
         
         $this->init();
         // $this->update_cache();
@@ -186,7 +186,7 @@ class Wrap {
         $this->update_cache('/dist/mitm.html');
         $this->update_cache('/dist/sw.js');
         $this->update_cache('/dist/ping');
-        
+
         $queued_meta = '';
         foreach (self::$scripts as $key => $src) {
             $script_url = $this->update_cache($src);

@@ -1,7 +1,7 @@
 # Web Reel Advanced Publishing: it's a W.R.A.P.
 
-![Version 5.0.0-dev-3](https://badgen.net/badge/Version/5.0.0-dev-3/333333)
-![Stable 3.0.3](https://badgen.net/badge/Stable/3.0.3/00aa00)
+![Version 5.0.1-dev](https://badgen.net/badge/Version/5.0.1-dev/333333)
+![Stable 5.0.0](https://badgen.net/badge/Stable/5.0.0/00aa00)
 ![Requires PHP 7.4](https://badgen.net/badge/PHP/7.4/7884bf)
 ![License AGPLv3 or later](https://badgen.net/badge/License/AGPLv3%20or%20later/552b55)
 
