@@ -314,9 +314,9 @@ class Wrap {
         $this->logo = ($this->logo) ? $this->logo : $this->wrap_logo;
         $site_title = ($this->site_title) ? $this->site_title : $this->wrap_title;
         
-        $page_title = trim($breadcrumbs . ' ' . $site_title);
+        $page_title = trim(strip_tags(str_replace('</li>', ' / ', $this->breadcrumb)) . ' ' . $this->title);
         // suppress any html tag for head title
-        $head_title = strip_tags($page_title);
+        $head_title = strip_tags($page_title) . ' - ' . $site_title;
 
         $logo = $this->update_cache($this->logo);
         $branding = ( $logo ) ? '<img class=logo src="' . $logo . '" alt="' . $this->site_title . '">' : $this->site_title;

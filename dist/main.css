@@ -44,14 +44,24 @@ body, a {
             max-height: 2.2em;
         }
     }
+    h1 {
+        font-size: 1.5rem;
+        margin: 0.25em 0 0;
+    }
+    h1 nav {
+        display: inline-block;
+        font-size: 90%;
+    }
+
     nav ul {
         list-style-type: none;
         padding: 0;
+        margin: 0;
     }
     nav ul li {
         display: inline;
     }
-    nav ul li:not(:last-child)::after {
+    nav ul li::after {
         content: ' / ';
     }
 }
@@ -69,7 +79,7 @@ nav {
         color: var(--primary-color);
         text-decoration: underline;
     }
-
+    
     ul {
         list-style-type: none;
         padding: 0;
