@@ -12,9 +12,26 @@
 
 require 'vendor/autoload.php';
 
+/**
+ * Main class
+ * 
+ * Initialize the application, update cache, collect data and build the page.
+ * 
+ * @package Wrap
+ * @version 5.0.1
+ * @since 5.0.0
+ *
+ * @property string $wrap_data
+ * @property string $nav
+ * @property string $brand
+ * @property array $scripts
+ * @property array $styles
+ * @property string $breadcrumb
+ * @property string $content
+ * 
+ */
 class Wrap {
     private $wrap_data;
-    private $real_path;
     private $nav;
     private $brand = "W.R.A.P. by Magiiic";
     private static $scripts = [];
