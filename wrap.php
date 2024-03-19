@@ -208,47 +208,7 @@ class Wrap {
             $queued_meta .= '<link id="css-' . $key . '" href="' . $css_url . '" rel="stylesheet">' . PHP_EOL;
         }
 
-        $template = '<!DOCTYPE html>
-        <html lang="en">
-        <head>
-            <meta charset="utf-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1">
-            <title>{title}</title>
-            <meta name="description" content="{description}">
-            <meta name="keywords" content="{keywords}">
-            <meta name="generator" content="Wrap ' . WRAP_VERSION . '">
-            
-            <meta name="apple-mobile-web-app-capable" content="yes">
-            <meta name="apple-mobile-web-app-status-bar-style" content="black">
-            {queued_meta}
-        </head>
-        <body>
-        <div class="container">
-            <header id="header">
-                <nav class="breadcrumb">
-                    {breadcrumb}
-                </nav>
-                <h1>{title}</h1>
-                <div id=branding>
-                    {brand}
-            </header>
-            <main id="main">
-                <nav id=nav>
-                    {nav}
-                    <ul id="actions">Options</ul>
-                </nav>
-                <div id="content">
-                    {content}
-                </div>
-            </main>
-            <footer id="footer">
-                {footer}
-            </footer>
-        </div>
-        </body>
-        </html>';
-
-        $data = [
+        $output = Wrap::process_template('/templates/page.html', array(
             '{title}' => $this->title,
             '{description}' => $description,
             '{keywords}' => $keywords,
@@ -258,9 +218,14 @@ class Wrap {
             '{breadcrumb}' => $this->breadcrumb,
             '{nav}' => $this->nav,
             '{queued_meta}' => $queued_meta,
-        ];
+        ));
+        echo $output;
+        // echo strtr($template, $data);
+    }
 
-        echo strtr($template, $data);
+    private static function process_template($template, $data = []) {
+        $template = file_get_contents(WRAP_DIR . $template);
+        return strtr($template, $data);
     }
 
     public static function getVersion() {
