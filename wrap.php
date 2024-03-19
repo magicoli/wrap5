@@ -33,8 +33,11 @@ require 'vendor/autoload.php';
 class Wrap {
     private $wrap_data;
     private $nav;
-    private $branding = "W.R.A.P. by Magiiic";
-    private $site_title = "W.R.A.P. by Magiiic";
+    private $branding;
+    private $site_title;
+    private $logo;
+    private $wrap_title = "W.R.A.P. by Magiiic";
+    private $wrap_logo = "/images/magiiic-logoby-v4-wrap-80.png";
     private static $scripts = [];
     private static $styles = [];
     private $breadcrumb = '';
@@ -103,6 +106,8 @@ class Wrap {
      * @since 5.0.1
      */
     public function update_cache( $file ) {
+        if (empty($file)) return;
+
         // do not cache external urls
         if (filter_var($file, FILTER_VALIDATE_URL)) {
             return $file;
@@ -306,6 +311,24 @@ class Wrap {
         $this->update_cache('/dist/sw.js');
         $this->update_cache('/dist/ping');
 
+        $this->logo = ($this->logo) ? $this->logo : $this->wrap_logo;
+        $site_title = ($this->site_title) ? $this->site_title : $this->wrap_title;
+        $logo = $this->update_cache($this->logo);
+        $branding = ( $logo ) ? '<img class=logo src="' . $logo . '" alt="' . $this->site_title . '">' : $this->site_title;
+        $this->branding = (empty($branding)) ? '' : '<a href="' . WRAP_URL . '" class="branding">' . $branding . '</a>';
+        
+        if($this->wrap_logo) {
+            $footer_logo = $this->update_cache($this->wrap_logo);
+            $footer_title = $this->wrap_title;
+            $footer_url = 'https://wrap.rocks/';
+            $footer_branding = ( $footer_logo ) ? '<img class="logo" src="' . $footer_logo . '" alt="' . ($footer_title) . '">' : $footer_title;
+        } else {
+            $footer_url = WRAP_URL;
+            $footer_branding = $this->branding;
+        }
+        $footer_branding = (empty($footer_branding)) ? '' : '<div class=branding><a href="' . $footer_url . '" class="branding">' . $footer_branding . '</a></div>';
+        $footer = '<div class=version>' . WRAP_VERSION . '</div>' . $footer_branding;
+
         $queued_meta = '';
         foreach (self::$scripts as $key => $src) {
             $script_url = $this->update_cache($src);
@@ -321,7 +344,7 @@ class Wrap {
             '{description}' => $description,
             '{keywords}' => $keywords,
             '{content}' => $this->content,
-            '{footer}' => "Wrap " . WRAP_VERSION,
+            '{footer}' => $footer,
             '{branding}' => $this->branding,
             '{breadcrumb}' => $this->breadcrumb,
             '{nav}' => $this->nav,
