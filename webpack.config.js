@@ -1,5 +1,6 @@
 const path = require('path');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const CopyPlugin = require('copy-webpack-plugin');
 
 module.exports = {
     mode: 'development',
@@ -22,22 +23,28 @@ module.exports = {
                 test: /\.css$/,
                 use: [MiniCssExtractPlugin.loader, 'css-loader'],
             },
-            {
-                test: /\.js$/,
-                exclude: /node_modules/,
-                use: {
-                    loader: 'babel-loader',
-                    options: {
-                        presets: ['@babel/preset-env']
-                    }
-                }
-            }
+            // {
+            //     test: /\.js$/,
+            //     exclude: /node_modules/,
+            //     use: {
+            //         loader: 'babel-loader',
+            //         options: {
+            //             presets: ['@babel/preset-env']
+            //         }
+            //     }
+            // }
         ],
     },
     plugins: [
         new MiniCssExtractPlugin({
             filename: '[name].css',
             chunkFilename: '[id].css',
+        }),
+        new CopyPlugin({
+            patterns: [
+                { from: 'node_modules/streamsaver/mitm.html', to: './' },
+                { from: 'node_modules/streamsaver/sw.js', to: './' },
+            ],
         }),
     ],
 };

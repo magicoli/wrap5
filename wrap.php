@@ -183,7 +183,10 @@ class Wrap {
 
         self::queue_style('font-awesome', 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css');
         self::queue_style('style-main', '/dist/main.css');
-
+        $this->update_cache('/dist/mitm.html');
+        $this->update_cache('/dist/sw.js');
+        $this->update_cache('/dist/ping');
+        
         $queued_meta = '';
         foreach (self::$scripts as $key => $src) {
             $script_url = $this->update_cache($src);

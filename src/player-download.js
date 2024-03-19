@@ -1,5 +1,6 @@
 import JSZip from 'jszip';
-import { saveAs } from 'file-saver';
+// import { saveAs } from 'file-saver';
+import streamSaver from 'streamsaver';
 
 // Ajouter un bouton pour télécharger les favoris
 export function setupDownloadButton(player, atts = {}) {
@@ -49,44 +50,92 @@ export function setupDownloadButton(player, atts = {}) {
                     if (!response.ok) {
                         throw new Error('Network response was not ok');
                     }
-                    return response.blob();
+                    // Récupérer les données du fichier en tant qu'ArrayBuffer
+                    return response.arrayBuffer();
                 })
-                .then(function(blob) {
-                    downloadButton.textContent = 'Packing ' + filesAdded + '/' + currentPlaylist.length;
+                .then(function(buffer) {
+                    downloadButton.textContent = 'Fetching ' + filesAdded + '/' + currentPlaylist.length;
                     // Extract the filename from the src attribute
                     var filename = item.sources.src.split('/').pop();
 
-                    // Ajouter le blob au zip avec the original filename
-                    zip.file(filename, blob, {binary:true});
+                    // Ajouter le buffer au zip avec the original filename
+                    zip.file(filename, buffer, {binary:true});
 
                     // Incrémenter le compteur de fichiers ajoutés
                     filesAdded++;
 
-                    // Mettre à jour le texte du bouton avec la progression
+                    buffer = null; // Supprimer la référence à buffer
                 });
 
                 // Ajouter la promesse à notre tableau de promesses
                 fetchPromises.push(fetchPromise);
             });
 
+            // Créer un TransformStream pour suivre la progression
+            const ts = new TransformStream({
+                transform(chunk, controller) {
+                    // Mettre à jour la progression
+                    updateProgress(chunk.length);
+                    // Passer le chunk au flux inscriptible
+                    controller.enqueue(chunk);
+                }
+            });
+
+            let contentLength;
+
             // Attendre que toutes les promesses soient résolues
             Promise.all(fetchPromises)
             .then(function() {
                 // Générer le fichier zip de manière asynchrone
-                downloadButton.textContent = 'Saving';
-                return zip.generateAsync({type:"blob"});
+                downloadButton.textContent = 'Packing';
+                return zip.generateAsync({type:"uint8array", streamFiles:true}, function(metadata) {
+                    // Mettre à jour la progression
+                    downloadButton.textContent = `Packing: ${metadata.percent.toFixed(2)}%`;
+                });
             })
             .then(function(content) {
+                downloadButton.textContent = 'Saving';
                 // Utiliser le titre de la page comme nom du fichier
                 var zipname = document.title ? document.title : window.location.pathname.split('/').pop();
+                contentLength = content.length; // Mettre à jour contentLength
 
-                // Utiliser FileSaver.js pour sauvegarder le fichier avec le nom du titre de la page
-                saveAs(content, zipname + ".zip");
+                // Créer un nouveau fichier avec streamSaver
+                streamSaver.mitm = '/.cache/dist/mitm.html';
+                const fileStream = streamSaver.createWriteStream(zipname + ".zip", {
+                    size: content.length,
+                    writableStrategy: undefined,
+                    readableStrategy: undefined
+                });
+
+                // Créer un flux lisible à partir du contenu
+                const readable = new ReadableStream({
+                    start(controller) {
+                        controller.enqueue(content);
+                        controller.close();
+                    }
+                });
+
+                // Pipe le flux lisible au TransformStream, puis au flux inscriptible
+                return readable.pipeThrough(ts).pipeTo(fileStream);
             })
             .then(function() {
+                // Calculer le délai en fonction de la taille du contenu
+                var delay = contentLength / (15 * 1024 * 1024) * 1000; //   15Mo/s
+                downloadButton.textContent = 'Writing on disk...';
+                
+                // Utiliser setTimeout pour ajouter un délai avant de revenir à initialButtonContent
+                setTimeout(function() {
                 downloadButton.textContent = initialButtonContent;
                 downloadButton.disabled = false; // Réactiver le bouton
+                }, delay);
             });
+
+            // Fonction pour mettre à jour la progression
+            function updateProgress(chunkLength) {
+                // Mettre à jour la barre de progression ou un autre indicateur visuel ici
+                downloadButton.textContent = `Processed ${chunkLength} bytes`;
+            }
         });
     });
 }
+    
