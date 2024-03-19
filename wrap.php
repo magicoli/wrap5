@@ -313,6 +313,11 @@ class Wrap {
 
         $this->logo = ($this->logo) ? $this->logo : $this->wrap_logo;
         $site_title = ($this->site_title) ? $this->site_title : $this->wrap_title;
+        
+        $page_title = trim($breadcrumbs . ' ' . $site_title);
+        // suppress any html tag for head title
+        $head_title = strip_tags($page_title);
+
         $logo = $this->update_cache($this->logo);
         $branding = ( $logo ) ? '<img class=logo src="' . $logo . '" alt="' . $this->site_title . '">' : $this->site_title;
         $this->branding = (empty($branding)) ? '' : '<a href="' . WRAP_URL . '" class="branding">' . $branding . '</a>';
@@ -341,6 +346,8 @@ class Wrap {
 
         $output = Wrap::process_template('templates/page.html', array(
             '{title}' => $this->title,
+            '{page_title}' => $page_title,
+            '{head_title}' => $head_title,
             '{description}' => $description,
             '{keywords}' => $keywords,
             '{content}' => $this->content,
@@ -358,8 +365,17 @@ class Wrap {
      * 
      * Process ah HTML template with data
      * 
+     * 
      * @param string $template      Path to the template file
+     *                              <div>
+     *                                  <h1>{tag}</h1>
+     *                                  <p>{other_tag}</p>
+     *                              </div>
      * @param array $data           Array of tag/values to replace in the template
+     *                              $data = array(
+     *                                '{tag}' => 'the value for tag',
+     *                                '{other_tag}' => 'the value for other_tag',
+     *                              );
      * 
      * @return string               The processed template
      * 
@@ -367,7 +383,19 @@ class Wrap {
      */
     public static function process_template($template, $data = []) {
         $template = file_get_contents(WRAP_DIR . '/' . $template);
-        return strtr($template, $data);
+
+        // List tags present in the template
+        preg_match_all('/\{[a-zA-Z0-9_]+\}/', $template, $tags);
+        $tags = array_unique($tags[0]);
+
+        // Replace template tags with data
+        $html = strtr($template, $data);
+
+        // Remove unused tags from html
+        $remaining_tags = array_diff($tags, array_keys($data));
+        $html = str_replace($remaining_tags, '', $html);
+
+        return $html;
     }
 
     /**

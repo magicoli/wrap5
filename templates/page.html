@@ -3,7 +3,7 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>{title}</title>
+        <title>{head_title}</title>
         <meta name="description" content="{description}">
         <meta name="keywords" content="{keywords}">
         <meta name="generator" content="Wrap ' . WRAP_VERSION . '">
@@ -15,10 +15,12 @@
     <body>
     <div class="container">
         <header id="header">
-            <nav class="breadcrumb">
-                {breadcrumb}
-            </nav>
-            <h1>{title}</h1>
+            <h1> 
+                <nav class="breadcrumb">
+                    {breadcrumb}
+                </nav>
+                {title}
+            </h1>
             <div id="branding" class="branding">
                 {branding}
             </div>
