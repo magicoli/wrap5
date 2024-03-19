@@ -1,11 +1,22 @@
 <?php
+/**
+ * W.R.A.P. by Magiiic
+ * 
+ * @version 5.0.1
+ * @author Magiiic
+ * @link https://wrap.rocks/
+ * @license AGPL-3.0
+ * 
+ * Wrap is a simple file browser and media player for your website.
+ */
+
 require 'vendor/autoload.php';
 
 class Wrap {
     private $wrap_data;
     private $real_path;
     private $nav;
-    private $brand = "Wrap by Magiiic";
+    private $brand = "W.R.A.P. by Magiiic";
     private static $scripts = [];
     private static $styles = [];
     private $breadcrumb = '';
