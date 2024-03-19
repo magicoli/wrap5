@@ -208,7 +208,7 @@ class Wrap {
             $queued_meta .= '<link id="css-' . $key . '" href="' . $css_url . '" rel="stylesheet">' . PHP_EOL;
         }
 
-        $output = Wrap::process_template('/templates/page.html', array(
+        $output = Wrap::process_template('templates/page.html', array(
             '{title}' => $this->title,
             '{description}' => $description,
             '{keywords}' => $keywords,
@@ -220,11 +220,10 @@ class Wrap {
             '{queued_meta}' => $queued_meta,
         ));
         echo $output;
-        // echo strtr($template, $data);
     }
 
-    private static function process_template($template, $data = []) {
-        $template = file_get_contents(WRAP_DIR . $template);
+    public static function process_template($template, $data = []) {
+        $template = file_get_contents(WRAP_DIR . '/' . $template);
         return strtr($template, $data);
     }
 
@@ -352,7 +351,7 @@ class Wrap_Folder {
         
     public function get_content() {
         $icons = Wrap::icons();
-        $content = '<ul class="files">';
+        // $content = '<ul class="files">';
         $playlist = [];
         $id=0;
         $p=0;
@@ -405,7 +404,7 @@ class Wrap_Folder {
                 ];
             }
         }
-        
+        $items = '';
         foreach ($files_map as $filename => $data) {
             $classes = [];
 
@@ -455,18 +454,7 @@ class Wrap_Folder {
                 $p++;
             }
 
-            $content .= strtr(
-                '<li id="{id}" class="{classes}" data-index="{idx}">
-                    <figure>
-                        <span class=thumbnail>{thumb}</span>
-                        <figcaption class=name>
-                            <span class=name>{name}</span>
-                            <span class=tags>{tags}</span>
-                            <span class=buttons></span>
-                        </figcaption>
-                    </figure>
-                </li>',
-                array(
+            $items .= Wrap::process_template('templates/page-list-item.html', array(
                 '{id}' => $id,
                 '{idx}' => $idx,
                 '{thumb}' => $thumb,
@@ -474,45 +462,23 @@ class Wrap_Folder {
                 '{tags}' => empty($tags) ? '' : '<span class=tag>' . join('</span> <span class=tag>', $tags) . '</span>',
                 '{classes}' => join(' ', $classes),
             ));
-            // $content .= sprintf( 
-            //     '<li id="%s" class="%s" data-index="%s">
-            //         <span class=thumbnail>%s</span>
-            //         <span class=name>%s</span>
-            //         <span class=buttons></span>
-            //         <span class=tags></span>
-            //     </li>',
-            //     'list-item-' . $id,
-            //     join(' ', $classes),
-            //     $idx,
-            //     $thumb,
-            //     $file->name,
-            //     join(', ', $tags),
-            // );
-
         }
-        $content .= '</ul>';
+        
+        $content = Wrap::process_template('templates/page-list.html', array(
+            '{items}' => $items,
+        )); 
+
         if(!empty($playlist)) {
-            // Wrap::queue_script('videojs', 'https://vjs.zencdn.net/7.8.4/video.js');
-            // Wrap::queue_style('videojs-style', 'https://vjs.zencdn.net/7.8.4/video-js.css');
-            // Wrap::queue_script('videojs-playlist', 'https://cdn.jsdelivr.net/npm/videojs-playlist@4.3.0/dist/videojs-playlist.js');
-            
             Wrap::queue_script('player', '/dist/player.js');
             Wrap::queue_style('player', '/dist/player.css');
 
-            $playlist_script = "<script>setupPlayer(" . json_encode($playlist) . ");</script>";
+            // $playlist_script = "<script>setupPlayer(" . json_encode($playlist) . ");</script>";
+            // $player = '<dialog id="player-modal"><div id=player><video id="player" class="video-js vjs-default-skin" controls preload="auto" data-setup="{}"></video></div></dialog>';
+            // $content .= $player . $playlist_script;
 
-            // error_log($playlist_script);
-            // $waverform = '  <div id="waveform">
-            //     <div id="time">0:00</div>
-            //     <div id="duration">0:00</div>
-            //     <div id="hover"></div>
-            // </div>';
-            $player = '<dialog id="player-modal"><div id=player><video id="player" class="video-js vjs-default-skin" controls preload="auto" data-setup="{}"></video></div></dialog>';
-            $content .= $player . $playlist_script;
-        }
-
-        if(!empty($playlist)) {
-            // error_log("Playlist: " . print_r($playlist, true));
+            $content .= Wrap::process_template('templates/page-player.html', array(
+                '{playlist_json}' => json_encode($playlist),
+            ));
         }
 
         return $content;
