@@ -14,7 +14,7 @@ class Wrap {
     private $minisite_root;
 
     public function __construct() {
-        define('WRAP_VERSION', '5.0.1-dev');
+        define('WRAP_VERSION', '5.0.1');
         
         $this->init();
         // $this->update_cache();
