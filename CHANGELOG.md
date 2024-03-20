@@ -1,5 +1,16 @@
 ## Changelog
 
+Unreleased changes
+* better page title and head title
+* delete remaining uprocessed template tags from html output
+* updated footer
+* reorganised files and added phpdoc
+* removed unused Wrap->real_path
+* moved obsolete icons in src/legacy/images
+* use templates for list and player
+* added templates file for page output
+* added project info doc
+
 5.0.1
 * new 5.x branch, let's redo all this again, but better
 * rewrote basic navigation and player funtionalties
