@@ -2,7 +2,7 @@
 /**
  * W.R.A.P. by Magiiic
  * 
- * @version 5.0.1
+ * @version 5.0.2-dev
  * @author Magiiic
  * @link https://wrap.rocks/
  * @license AGPL-3.0
@@ -46,7 +46,7 @@ class Wrap {
     private $minisite_root;
 
     public function __construct() {
-        define('WRAP_VERSION', '5.0.1');
+        define('WRAP_VERSION', '5.0.2-dev');
         
         $this->init();
         // $this->update_cache();
