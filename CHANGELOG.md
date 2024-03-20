@@ -1,6 +1,6 @@
 ## Changelog
 
-Unreleased changes
+5.0.2-dev
 * better page title and head title
 * delete remaining uprocessed template tags from html output
 * updated footer

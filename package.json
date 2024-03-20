@@ -1,6 +1,6 @@
 {
   "name": "wrap5",
-  "version": "5.0.1",
+  "version": "5.0.2-dev",
   "description": "W.R.A.P. by Magiiic",
   "main": "src/index.js",
   "scripts": {
