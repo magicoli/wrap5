@@ -25,7 +25,7 @@ else
 fi
 [ -d "$sources/tmp" ] \
 && phptmp=$sources/tmp \
-|| phptmp=~/domains/wrap.magiiic.media/tmp
+|| phptmp=~/domains/wrap.rocks/tmp
 
 which notify-send >/dev/null || log $? "Command 'notify-send' not found, but can be installed with:
 sudo apt install libnotify-bin"
@@ -89,7 +89,7 @@ do
 
   ls $sources/tmp/php* >/dev/null 2>/dev/null \
   && phptmp=$sources/tmp \
-  || phptmp=~/domains/wrap.magiiic.media/tmp
+  || phptmp=~/domains/wrap.rocks/tmp
   echo "$phptmp"
   ls -lrt $phptmp | egrep '[[:blank:]]php'
   date
