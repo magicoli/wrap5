@@ -80,6 +80,12 @@ function urlcode($i, $f, $o) {
 		$file = @fopen('php://stdin', 'r') or exit("Unable to process standard input\n\n");
 	}
 
+	if(! function_exists('urldecode') || ! function_exists('urlencode')) {
+		fwrite(STDERR, "Warning: 'urldecode' and 'urlencode' functions are not available. Outputting unaltered content.\n");
+		echo "$file";
+		exit;
+	}
+	
 	while(!feof($file)) {
 		$line = chop(fgets($file));
 		if ($o == 'decode') {
@@ -91,5 +97,3 @@ function urlcode($i, $f, $o) {
 	}
 	fclose($file);
 }
-
-?>
