@@ -156,8 +156,8 @@ else
 	if [ "$remote_server" != "" ]
 	then
 		echo "remote: $remote"
-		echo ssh -t $remote_server $PGM $@
-		ssh -t $remote_server $PGM $@
+		echo ssh -t $remote_server $BINDIR/$PGM $@
+		ssh -t $remote_server $BINDIR/$PGM $@
 	else
 		echo "no remote $remote"
 	fi
