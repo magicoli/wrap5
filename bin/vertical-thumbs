@@ -1,0 +1,16 @@
+#!/bin/bash
+
+cat | while read file
+do
+    n=$(echo $file | cut -d "-" -f 1)
+    m=$(grep "\s$n-" .sources/liste | sed "s/[^0-9]/ /g" | cut -d " " -f 1)
+    t=$(cat .sources/.$m.thumbtime 2>/dev/null || grep "^$m.mov" .sources/times | sed -E "s/.*\s([0-9]+)\s*$/\\1/")
+    qt-thumbnailswide.sh -f -$t "$file"
+    qt-thumbnails.sh -f -l -p -$t .sources/$m.mov
+    cp .browsercache/$(basename $file .mp4)-thumb.jpg .sources/.browsercache/$m-thumb.jpg
+    large=.sources/.browsercache/$m-large.jpg
+    width=$(identify $large | cut -d " " -f 3 | cut -d x -f 1)
+    height=$((width * 16 / 9))
+    convert -resize ${width}x$height\! $large $large.tmp.jpg && mv $large.tmp.jpg $large
+    cp $large .browsercache/$(basename $file .mp4)-large.jpg
+done

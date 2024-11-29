@@ -257,7 +257,7 @@ do
   # -threads auto
   # command="$command -acodec $acodec -ab 160000 -s $convertsize -vcodec libx264 -coder 1 -flags +loop $osparams -me_method umh -subq 8 -me_range 16 -g 250 -keyint_min 25 -sc_threshold 40 -i_qfactor 0.71 -b_strategy 2 -qcomp 0.6 -qmin 10 -qmax 51 -qdiff 4 -bf 3 -refs 5 $directpred 3 -trellis 1 -wpredp 2 -coder 0 -bf 0 -refs 1 -level 30 -maxrate 10000000 -bufsize 10000000 -wpredp 0 -b $videorate -threads 0 -f mp4"
   params="$params $tmpfile"
-  # echo $vapp -i "$realfile" $params
+  echo $vapp -i "$realfile" $params >&2
   $vapp -i "$realfile" $params || end $? "ERROR processing $command"
 
   # [ -f $tmpfile ] && mv "$tmpfile" "$output" || {

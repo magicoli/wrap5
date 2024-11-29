@@ -15,7 +15,7 @@ case $client in
 	baseurl="http://wrap.deuxhuit.be" \
 	;;
 	*)
-	baseurl="http://wrap.magiiic.media/$client"
+	baseurl="http://wrap.rocks/$client"
 	;;
 esac
 
