@@ -5,13 +5,18 @@ base=~/castings
 PGM=`basename "$0"`
 TMP="/tmp/$PGM"
 
-(
+export PATH=$(dirname "$0"):$PATH
+. $(which casting-helpers) || exit 1
+
 for conf in /etc/casting ~/etc/casting /etc/$PGM /usr/local/etc/$PGM ~/etc/$PGM
 do
     [ -f $conf ] && . $conf
-done
+done >&2
+(
 [ ! "$createfolders" ] && createfolders="$SDDIR $SOURCES"
 [ "$createfolders" = "none" ] && createfolders=
+
+editor=$(which code || which atom || which gedit || which subl)
 
 echo "base: $base"
 
@@ -134,7 +139,32 @@ do
   fi
 done
 ) >&2
-cat $TMP.lastcreated
+
+lastcreated=$(cat $TMP.lastcreated)
+
+if grep -q "\.sources" $TMP.lastcreated
+then
+	touch $lastcreated/times
+	mkdir $lastcreated/.browsercache
+else
+	cd $lastcreated
+	touch liste ignore thumbs roles deleted times aliases
+	mkdir -p browsercache thumbnails
+
+	[ "$editor" != "" ] && $editor ./ liste ignore thumbs roles
+
+	if [ "$remote_server" != "" ]
+	then
+		echo "remote: $remote"
+		echo ssh -t $remote_server $PGM $@
+		ssh -t $remote_server $PGM $@
+	else
+		echo "no remote $remote"
+	fi
+fi >&2
+echo >&2
+
+echo "$lastcreated"
 
 # cd "$castingdir" || exit 5
 #ln -s "$base/$client/web/$job/$casting" web || exit 6
