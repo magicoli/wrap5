@@ -6,7 +6,7 @@ string=`echo $@ \
 	| tr "[:upper:]" "[:lower:]" \
 	| tr "áàâäéèêëíìîïóòôöúùûüç" "aaaaeeeeiiiioooouuuuc" \
 	| sed "s/[œŒ]/oe/g" \
-	| urlcoder -e \
+	| urlcoder -e  2>/dev/null \
 	| sed "s/%26/,/g" \
 	| sed "s/+/ /g" \
 	| sed "s/ ,/,/g" \
