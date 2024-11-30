@@ -42,6 +42,7 @@ timedelta=$(seconds "1970-01-01 00:00:00")
 total=0
 for movie in "$@"
 do
+	[ -f $movie ] || continue
 	printf "$movie: "
 	# duration=$(ffmpeg -i "$movie" 2>&1 | grep Duration: | sed "s/.*Duration: //" | cut -d "," -f 1 | cut -d "." -f 1)
 	# duration=$(ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 -sexagesimal "$movie" | cut -d. -f 1)
@@ -58,8 +59,8 @@ done
 
 echo subtotal: $total
 echo total: $total | cut -d. -f 1
-# total=$(($total + 59))
 
 # minutes=$(($total / 60))
+echo "total $total"
 minutes=$(echo "$total / 60" | bc -l)
 echo minutes: $minutes
