@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 [ ! "$ENDSUCCESS" ] && ENDSUCCESS="Ça roule"
 [ ! "$ENDFAILED" ] && ENDFAILED="Ça craint!"

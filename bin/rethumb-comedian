@@ -1,9 +1,8 @@
 #!/bin/bash
 
-
 director=$(pwd | sed 's:.*/castings/::' | cut -d / -f 1)
-export PATH=$PATH:$(basename "$0")
 
+export PATH=$(dirname "$0"):$PATH
 . $(which casting-helpers) || exit 1
 
 if echo "remote $remote" | grep -q ":"
