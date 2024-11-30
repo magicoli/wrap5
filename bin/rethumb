@@ -18,7 +18,8 @@ do
     do
       qt-thumbnailswide.sh -f -l -$d $nr.mov
       du -sh .browsercache/$nr-thumb.jpg | grep ^0 && d=$(($d - 1)) && echo retrying && continue
-      echo  "$nr.mov" >> .rethumbed
+      echo "$nr.mov" >> .rethumbed
+      echo "$nr" > .$1.thumbtime
       break
     done
   done

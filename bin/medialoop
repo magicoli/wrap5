@@ -31,7 +31,7 @@ do
   if [ $i -ge $min2thumb ]
   then
     echo
-    [ "$director" = "bobines" ] && rethumb
+    [ "$director" = "bobines" -o "$director" = "ludivine" ] && rethumb -e
     rm ../.browsercache/* 2>/dev/null
     batchthumbs .liste.$$ > ../playlist.php.$$ 2>/dev/null \
     && mv ../playlist.php.$$ ../playlist.php \
