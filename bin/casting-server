@@ -39,31 +39,26 @@ open=$(which xdg-open || which gnome-open)
 
 if [ ! "$SSH_CLIENT" ]
 then
-  if which xrandr 
-  then
-    xrandr --query | grep [[:blank:]]connected | sed -e "s/.*connected //" -e "s/.*primary //"> $TMP.screens
-    allscreens=$(cat $TMP.screens | wc -l)
-    scrpos=$(cat $TMP.screens | cut -d+ -f2| cut -d " " -f 1 | tail -1)
-    scrwidth=$(cat $TMP.screens | cut -dx -f1 | tail -1)
-    # scrheigth=$(cat $TMP.screens | cut -dx -f2 | cut -d+ -f 1 | tail -1)
-    winwidth=$(($scrwidth / 3))
-    # winheight=$scrheigth
-    echo "$PGM" | grep server \
-    && winposx=$(($scrpos + $scrwidth - $winwidth)) \
-    || winposx=$(($scrpos + $scrwidth - 2 * $winwidth))
-    # winposy=0
-    wmctrl -r :ACTIVE: -e 5,$winposx,-1,$winwidth,-1
-    wmctrl -r :ACTIVE: -b add,maximized_vert
-    wmctrl -r :ACTIVE: -N "$USER@$HOSTNAME $PGM $SCREENTITLE"
-  fi
+  xrandr --query | grep [[:blank:]]connected | sed -e "s/.*connected //" -e "s/.*primary //"> $TMP.screens
+  allscreens=$(cat $TMP.screens | wc -l)
+  scrpos=$(cat $TMP.screens | cut -d+ -f2| cut -d " " -f 1 | tail -1)
+  scrwidth=$(cat $TMP.screens | cut -dx -f1 | tail -1)
+  # scrheigth=$(cat $TMP.screens | cut -dx -f2 | cut -d+ -f 1 | tail -1)
+  winwidth=$(($scrwidth / 3))
+  # winheight=$scrheigth
+  echo "$PGM" | grep server \
+  && winposx=$(($scrpos + $scrwidth - $winwidth)) \
+  || winposx=$(($scrpos + $scrwidth - 2 * $winwidth))
+  # winposy=0
+  wmctrl -r :ACTIVE: -e 5,$winposx,-1,$winwidth,-1
+  wmctrl -r :ACTIVE: -b add,maximized_vert
+  wmctrl -r :ACTIVE: -N "$USER@$HOSTNAME $PGM $SCREENTITLE"
 
   echo "$PGM"
   if echo "$PGM" | grep -q "server"
   then
     remotehost=$(echo $remote | cut -d: -f1)
-    remotedir=$(pwd | sed "s:^$HOME/::")
-    echo "connecting to $remotehost"
-    ssh -t $remotehost "cd $remotedir && $(which $PGM)" $@ \
+    ssh -t $remotehost "cd $PWD && $(which $PGM)" $@ \
     || end $? "remote command failed"
     end remote finished
   else

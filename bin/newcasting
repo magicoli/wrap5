@@ -5,18 +5,13 @@ base=~/castings
 PGM=`basename "$0"`
 TMP="/tmp/$PGM"
 
-export PATH=$(dirname "$0"):$PATH
-. $(which casting-helpers) || exit 1
-
+(
 for conf in /etc/casting ~/etc/casting /etc/$PGM /usr/local/etc/$PGM ~/etc/$PGM
 do
     [ -f $conf ] && . $conf
-done >&2
-(
+done
 [ ! "$createfolders" ] && createfolders="$SDDIR $SOURCES"
 [ "$createfolders" = "none" ] && createfolders=
-
-editor=$(which code || which atom || which gedit || which subl)
 
 echo "base: $base"
 
@@ -139,6 +134,7 @@ do
   fi
 done
 ) >&2
+cat $TMP.lastcreated
 
 lastcreated=$(cat $TMP.lastcreated)
 

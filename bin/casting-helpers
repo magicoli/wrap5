@@ -47,11 +47,4 @@ do
 	[ -f "$folder/.castingrc" ] && . "$folder/.castingrc"
 done
 
-if echo "$remote" | grep -q ":"
-then
-	castingmode=client
-	remote_server=$(echo "$remote" | cut -d ":" -f 1)
-	remote_basedir=$(echo "$remote" | cut -d ":" -f 2-)
-else
-	castingmode=server
-fi
+echo "$remote" | grep -q ":" && castingmode=client || castingmode=server
