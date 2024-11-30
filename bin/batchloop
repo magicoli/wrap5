@@ -25,10 +25,13 @@ mkdir -p "$WEBDIR/.browsercache"
 while true
 do
 	cp liste $TMP.liste || exit $?
+	log 1 "building movies" >&2
 	batchff $TMP.liste
+	log 1 "building thumbs" >&2
 	batchthumbs $TMP.liste $method > $TMP.playlist 2>/dev/null \
 	&& mv $TMP.playlist ../playlist.php \
 	|| rm $TMP.playlist
+	log 1 "checking remaining videos to process" >&2
 	grep "=>" ../playlist.php  | cut -d '"' -f 2 \
 	| while read file
 	do
@@ -36,8 +39,10 @@ do
 	done > $TMP.missing
 	grep -q . "$TMP.missing" && echo && echo "Still in queue" && cat $TMP.missing && rm $TMP.missing
 
+	log 1 "processed, checking overtimes" >&2
 	du -sch ../*.mp4 2>/dev/null | sort -h | cut -f 2 | tail -20 | xargs movietime | grep ":.*:" | sort -nk3 | egrep -B5 --color "[0-9][0-9][0-9][0-9][0-9]* *$"
 	rm $TMP.liste
-	echo
-	read -t 10
+	countdown 10 "Ready for another run in"
+	# echo
+	# read -t 10
 done
