@@ -1,11 +1,12 @@
 #!/bin/sh
 
+exec 3>&1 1>&2
+
 base=~/castings
 
 PGM=`basename "$0"`
 TMP="/tmp/$PGM"
 
-(
 for conf in /etc/casting ~/etc/casting /etc/$PGM /usr/local/etc/$PGM ~/etc/$PGM
 do
     [ -f $conf ] && . $conf
@@ -133,7 +134,8 @@ do
     pwd | tee $TMP.lastcreated
   fi
 done
-) >&2
+
+exec 1>&3
 cat $TMP.lastcreated
 
 # cd "$castingdir" || exit 5
