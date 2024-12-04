@@ -8,15 +8,25 @@ min2thumb=10
 	|| exit 1
 
 director=$(pwd | sed "s|.*/castings/||" | cut -d / -f 1);
-echo "director: $director"
+job=$(pwd | sed "s|.*/castings/||" | cut -d / -f 2);
+
+echo "director: $director job: $job"
 source=~/castings/$director/upload/server/php/files/
+
 [ ! -d "$source" ] && echo "source $source MISSING" >&2 && exit 1
 echo "source $source"
+notice="Processing job $job"
+notice_file="$source/__ $(echo "$notice" | tr "[:lower:]" "[:upper:]") __"
+touch "$notice_file"
+[ $? -ne 0 ] && echo "cannot touch $notice_file" && exit 1
+
 PGM=$(basename $0)
 TMP=/tmp/$PGM.$$
+trap "rm -f $TMP.* '$notice_file'" EXIT
 
 while true
 do
+  touch "$notice_file" && echo "$notice"
   cp liste .liste.$$
   i=$(($i + 1))
   ls "$source" | egrep -i "$extensions" 2>/dev/null | sort -n > $TMP.files
