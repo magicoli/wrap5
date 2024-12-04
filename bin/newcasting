@@ -1,11 +1,18 @@
 #!/bin/sh
 
-exec 3>&1 1>&2
+if [ "$1" = "-r" ]; then
+    shift
+    remote_call=1
+    prefix="  $(hostname) "  # Add a space for readability
+else
+    exec 3>&1 1>&2
+fi
 
 base=~/castings
 
 PGM=`basename "$0"`
 TMP="/tmp/$PGM"
+
 
 for conf in /etc/casting ~/etc/casting /etc/$PGM /usr/local/etc/$PGM ~/etc/$PGM
 do
@@ -16,6 +23,8 @@ done
 
 if echo "$remote" | grep -q ":"; then
 	remote_server=$(echo $remote | cut -d ":" -f 1)
+else
+	unset remote_server
 fi
 
 echo "base: $base"
@@ -35,7 +44,7 @@ else
   cat -n "$TMP.clients"
   while [ ! "$client" ]
   do
-    read -p "Choose client: " client
+    read -p "Choose client: " client >&2
     [ ! $client ] && continue
 
     if [ "$client" = "`echo "$client" | grep -v "[^0-9]"`" ]
@@ -50,7 +59,7 @@ printf "\t$client\n"
 if [ ! -d "$base/$client" ]
 	then
 	printf "\t"
-	read -p "client $client does not exist, create it? [y/N] " create
+	read -p "client $client does not exist, create it? [y/N] " create >&2
 	if [ "$create" != "y" ]
 		then
 		echo "cancelled"
@@ -91,7 +100,7 @@ printf "\t$job\n"
 if [ ! -d "$base/$client/$job" ]
 	then
 	printf "\t"
-	read -p "job $job does not exist, create it? [y/N] " create
+	read -p "job $job does not exist, create it? [y/N] " create >&2
 	if [ "$create" != "y" ]
 		then
 		echo "cancelled"
@@ -137,15 +146,18 @@ do
   fi
 done
 
-exec 1>&3
-
 if [ "$remote_server" != "" ]; then
 	echo "Applying on remote server $remote" >&2
 	remote_command=$(dirname $0)/$(basename $0)
 	echo "ssh -t $remote_server $remote_command $client $job $casting" >&2
-	ssh -t $remote_server $remote_command $client $job $casting | sed "s/^/  $remote_server /">&2
+	ssh -t $remote_server $remote_command $client $job $casting
 else
 	echo "could not resolve remote server from $remote" >&2
+fi
+
+if [ ! "$remote_call" ]
+then
+	exec 1>&3
 fi
 
 cat $TMP.lastcreated
