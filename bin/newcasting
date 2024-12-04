@@ -14,7 +14,12 @@ done
 [ ! "$createfolders" ] && createfolders="$SDDIR $SOURCES"
 [ "$createfolders" = "none" ] && createfolders=
 
+if echo "$remote" | grep -q ":"; then
+	remote_server=$(echo $remote | cut -d ":" -f 1)
+fi
+
 echo "base: $base"
+[ "$remote_server" ] && echo "remote: $remote_server"
 
 printf "Client:"
 
@@ -96,25 +101,22 @@ if [ ! -d "$base/$client/$job" ]
 	printf "\tcreated\n"
 fi
 
-printf "Castings:\n"
+if [ $3 ]
+then
+	casting=$3
+else
 
-ls -d "$base/$client/$job"/casting* 2>/dev/null \
-    | sed "s|$base/$client/$job/||" \
-    | sed "s/\..*//" | sort -u > "$TMP.castings"
+	printf "Castings:\n"
 
-# cat -n "$TMP.castings"
+	ls -d "$base/$client/$job"/casting* 2>/dev/null \
+		| sed "s|$base/$client/$job/||" \
+		| sed "s/\..*//" | sort -u > "$TMP.castings"
 
-newnumber=$((`cat "$TMP.castings" | wc -l` + 1))
-casting="casting$newnumber"
+	# cat -n "$TMP.castings"
 
-# printf "\t"
-# read -p "create \"$casting\" ? [y/N] " create
-# if [ "$create" != "y" ]
-# 	then
-# 	echo "cancelled"
-# 	unset job
-# 	exit
-# fi
+	newnumber=$((`cat "$TMP.castings" | wc -l` + 1))
+	casting="casting$newnumber"
+fi
 
 initialdir="$PWD"
 castingdir=$base/$client/$job/$casting
@@ -137,16 +139,13 @@ done
 
 exec 1>&3
 
-if echo "$remote" | grep -q ":"; then
-	remote_server=$(echo $remote | cut -d ":" -f 1)
-	if [ "$remote_server" != "" ]; then
-		echo "Applying on remote server $remote" >&2
-		remote_command=$(dirname $0)/$(basename $0)
-		echo "ssh -t $remote_server $remote_command $client $job $casting" >&2
-		ssh -t $remote_server $remote_command $client $job $casting | sed "s/^/  $remote_server /">&2
-	else
-		echo "could not resolve remote server from $remote" >&2
-	fi
+if [ "$remote_server" != "" ]; then
+	echo "Applying on remote server $remote" >&2
+	remote_command=$(dirname $0)/$(basename $0)
+	echo "ssh -t $remote_server $remote_command $client $job $casting" >&2
+	ssh -t $remote_server $remote_command $client $job $casting | sed "s/^/  $remote_server /">&2
+else
+	echo "could not resolve remote server from $remote" >&2
 fi
 
 cat $TMP.lastcreated
