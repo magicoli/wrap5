@@ -136,32 +136,6 @@ done
 ) >&2
 cat $TMP.lastcreated
 
-lastcreated=$(cat $TMP.lastcreated)
-
-if grep -q "\.sources" $TMP.lastcreated
-then
-	touch $lastcreated/times
-	mkdir $lastcreated/.browsercache
-else
-	cd $lastcreated
-	touch liste ignore thumbs roles deleted times aliases
-	mkdir -p browsercache thumbnails
-
-	[ "$editor" != "" ] && $editor ./ liste ignore thumbs roles
-
-	if [ "$remote_server" != "" ]
-	then
-		echo "remote: $remote"
-		echo ssh -t $remote_server $BINDIR/$PGM $@
-		ssh -t $remote_server $BINDIR/$PGM $@
-	else
-		echo "no remote $remote"
-	fi
-fi >&2
-echo >&2
-
-echo "$lastcreated"
-
 # cd "$castingdir" || exit 5
 #ln -s "$base/$client/web/$job/$casting" web || exit 6
 #cd "$castingdir/dv" || exit 7
