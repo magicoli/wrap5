@@ -1,6 +1,7 @@
 #!/bin/bash
 
 DEBUG=false
+extfilter='\.(mov|mp4|mpe?g|mts|mxf)'
 
 director=$(pwd | sed "s|.*/castings/||" | cut -d / -f 1);
 export PATH=$PATH:$(basename "$0")
@@ -32,7 +33,7 @@ function notify() {
   [ "$1" = "" ] && return
   echo "$@" >&2
   notify-send -u critical "$@"
-  which tts >/dev/null && tts "$@"
+  which tts >/dev/null && tts "$@" >/dev/null 2>/dev/null
 }
 
 log "watching $sources"
@@ -59,7 +60,7 @@ do
   then
     [ "$client" = "" ] && client="*"
     printf "$(date) (connecting $remotehost)\r"
-    ssh $remotehost "ls $remotepath/$client/upload/files/tmp/php*" 2>/dev/null > $TMP.uploads
+    ssh $remotehost "ls $remotepath/$client/upload/files/tmp/php* || ls $remotepath/$client/upload/files/*.* | egrep -i '$extfilter'" 2>/dev/null | tee $TMP.uploads
     if grep -q '[[:alnum:]]' $TMP.uploads
     then
       remotedirector=$(cat $TMP.uploads | sed "s:$remotepath/::" | cut -d "/" -f 1 | sort -u)
@@ -67,8 +68,10 @@ do
       then
         printf "\r\033[K"
         date
-        notify "Un envoi est en cours, sur $remotehost, pour $director"
-        printf "$_\n"
+        notification="Un envoi est en cours sur $remotehost"
+        [ "$director" ] && notification="$notification pour $director"
+        notify "$notification"
+        [ "$DEBUG" = "true" ] && printf "$_\n"
         break
       fi
     fi
@@ -76,26 +79,7 @@ do
     printf "\033[K$(date)"
     read -t 5
     printf "\r\033[K";
-    continue
   fi
-  clear
-  echo $sources
-  ls -lrt $sources \
-  | egrep '\.MTS|\.MPG|\.MOV|\.MP4|\.MXF' \
-  > $TMP.bydate
-  lines=$(($(tput lines) - 6))
-  [ $lines -gt 0 ] && tail -$lines $TMP.bydate
-  sort -k 9 $TMP.bydate \
-  > $TMP.files
-  printf "$(cat $TMP.files | wc -l) pending files"
-  diffs=$(diff $TMP.bydate $TMP.files 2>/dev/null | grep ">" | wc -l)
-  [ "$diffs" -eq 0 ] && echo || echo " ($diffs TIME MISMATCHESS" | grep --color ".*"
 
-  ls $sources/tmp/php* >/dev/null 2>/dev/null \
-  && phptmp=$sources/tmp \
-  || phptmp=~/domains/wrap.rocks/tmp
-  echo "$phptmp"
-  ls -lrt $phptmp | egrep '[[:blank:]]php'
-  date
   read -t 1
 done
