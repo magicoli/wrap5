@@ -1,7 +1,8 @@
 #!/bin/bash
 
 [ "$1" -a "x$1" != "x-e" ] && default_cut_time="$1" && shift
-[ "$1" = "-e" ] && unset default_cut_time
+[ "x$1" = "x-e" ] && unset default_cut_time && shift
+
 group_cut_time=5
 
 cat liste | grep -i [a-z] | while read index foo
