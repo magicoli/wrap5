@@ -67,8 +67,8 @@ do
 	ls "$source" | egrep -i "$extensions" 2>/dev/null | sort -n | while read file
   do
     n=$(echo $file | sed "s/_.*CANON.*//" | cut -d . -f 1 | sed "s/^[a-zA-Z]*0*\([0-9\]\)/\\1/" | sed "s/[^0-9]//g")
-    [ $n -eq $l ] && echo "$file" && continue
-    p=$(($n -1)); [ $p -eq $l ] && echo "$file" || break
+    [ "$n" = "$l" ] && echo "$file" && continue
+    p=$(($n -1)); [ "$p" = "$l" ] && echo "$file" || break
     l=$n
   done | sed "s:^:$source/:" > $TMP.movies
 
