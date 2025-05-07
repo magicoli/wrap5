@@ -1,22 +1,93 @@
 #!/bin/bash
 
-printf "" > fix
-grep .mov times | sed "s/://" | while read file time seconds
+export PATH=$(basename $0):$PATH
+PGM=$(basename $0)
+TMP=$(mktemp -t $PGM.$$.XXXXX)
+
+basename "$PWD" | grep -q "^.sources" || cd .sources || exit $?
+
+printf "" > $TMP.fix.mp4
+printf "" > $TMP.fix.aliases
+printf "" > $TMP.fix.merges
+
+echo "Clean obsolete files"
+cleancasting
+
+echo "Indexing list" >&2
+
+batchindex liste > $TMP.index || exit $?
+
+echo >&2
+echo "Check aliases" >&2
+cat .aliases | while read line
 do
-    n=$(basename $file .mov)
-    [ "$seconds" = "" ] && continue
-    [ "$seconds" = "0" ] && continue
-    mp4=../.mp4/$n.mp4
-    mp4secs=$(movietime $mp4 | grep $mp4 | sed -E "s/.*\s([0-9]+)\s*$/\\1/")
+    file=$(echo "$line" | cut -f 1)
+    alias=$(echo "$line" | cut -f 2)
+    [ -f $alias ] && continue
+    echo alias $alias of $file is missing
+    echo "ln '$file' '$alias'" >> $TMP.fix.aliases
+done
+
+echo >&2
+echo "updating times" >&2
+movietime $(ls *.mov | sort -n ) 2>/dev/null | tee $TMP.times | tr "\n" "\r"
+
+echo >&2
+echo "checking mp4 coherence" >&2
+
+grep .mov $TMP.times | sed "s/://" | while read mov time seconds
+do
+    echo $mov | grep -q "^qt-thumbnails" && continue
+    [ "$seconds" = "" ] && echo "$mov has no time" >&2 && continue
+    [ "$seconds" = "0" ] && echo "$mov time is zero" >&2 && continue
+
+    if grep -q "^$mov" ignore; then
+        echo "$mov ($seconds) in ignore list, skipping check" >&2
+        continue
+    fi
+
+    if ! grep -q " $mov" $TMP.index; then
+        echo "$mov ($seconds) not in index, skipping check" >&2
+        continue
+    fi
     [ $seconds -lt 3 ] && continue
+
+    n=$(basename $mov .mov)
+    mp4=../.mp4/$n.mp4
+    mp4secs=$(movietime $mp4 2>/dev/null | grep $mp4 | sed -E "s/.*\s([0-9]+)\s*$/\\1/")
     [ "$seconds" = "$mp4secs" ] && continue
-        if [ "$mp4secs" = "" ]; then
-        echo "$file has no mp4" >&2
+    if [ "$mp4secs" = "" ]; then
+        echo "$mov has no mp4" >&2
     else
         diff=$(($seconds - $mp4secs))
-        echo "$file differs of $diff seconds ($seconds / $mp4secs)" >&2
+        [ $diff -lt 0 ] && diff=$(($diff * -1))
+        [ $diff -le 1 ] && echo "$mov diff ($diff) irrelevant, ignoring" >&2 && continue
+        echo "$mov differs of $diff seconds ($seconds / $mp4secs)" | tee -a diffs >&2
     fi
-    echo "rm -f .$n.mp4.ts && makemp4 $file && mv $n.mp4 ../.mp4/" >> fix
+    echo "rm -f .$n.mp4.ts && makemp4 $mov && mv $n.mp4 ../.mp4/" | tee -a $TMP.fix.mp4 >&2
+    grep " $mov" $TMP.index | sed "s/^/# /" >> $TMP.fix.merges
 done
+
 echo >&2
-cat fix
+echo "checking merge coherence" >&2
+
+cat $TMP.index | while read output sources
+do
+    omov=../$(basename $output)
+    otime=$(movietime $omov 2>/dev/null | grep "^total:" | cut -d " " -f 2-)
+    stime=$(movietime $sources 2>/dev/null | grep "^total:" | cut -d " " -f 2-)
+    [ "$otime" = "$stime" ] && continue
+    diff=$(($stime - $otime))
+    [ $diff -lt 0 ] && diff=$(($diff * -1))
+    [ $diff -le 1 ] && echo "$mov diff ($diff) irrelevant, ignoring" >&2 && continue
+    echo "$omov ($otime) differs from sources ($stime) of $diff seconds" >&2
+    echo "rm -f $omov" >> $TMP.fix.merges
+done
+
+cat $TMP.fix.aliases >> $TMP.fix
+cat $TMP.fix.mp4 >> $TMP.fix
+cat $TMP.fix.merges | sort -u | sort -n >> $TMP.fix
+
+grep . $TMP.fix && mv "$TMP.fix" fix && echo >&2 && echo "run . ./fix to attempt to fix" >&2
+mv $TMP.times times
+mv $TMP.index index
