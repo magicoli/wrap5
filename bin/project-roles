@@ -1,0 +1,37 @@
+#!/bin/bash
+
+TMPDIR=_tmp
+
+mkdir -p _tmp
+
+# project=$(cat _pagetitle.txt 2>/dev/null || basename $(pwd))
+project=$(basename $(pwd))
+echo "Project: $project" >&2
+
+[ "$project" = "" ] && exit 1
+grep "=>" _*/playlist.php | cut -d '"' -f -2 | sed "s#/playlist.*\"../# #" \
+| while read tag file
+do
+    role=$(cat $tag/_pagetitle.txt  | sed "s/^_//")
+    [ "$role" = "" ] && role=$(echo "$tag" | sed "s/_/ /g")
+    roledir=$(echo "$role" | sed "s# - #/#g")
+
+    [ "$role" != "$previousrole" ] && echo "Role: $role, $roledir" >&2
+
+    # echo "$role - $file"
+    mkdir -p "$TMPDIR/$role"
+    [ -f "$file" ] && ln "$file" "$TMPDIR/$role/" || continue
+    folder=$(dirname "$file")
+    thumb=$folder/.browsercache/$(basename "$file" .mp4)-large.jpg
+    [ -f "$thumb" ] && ln "$thumb" "$TMPDIR/$role/" || continue
+    previousrole=$role
+done
+find _tmp/ -name "*.mp4" | grep -q mp4
+[ $? -ne 0 ] && echo "No video found" >&2 && exit 2
+
+zipfolder="$project-all-by-role"
+mv -v _tmp/ "$zipfolder" \
+&& zip -r "$zipfolder.zip" "$zipfolder" \
+&& rm -rf "$zipfolder" \
+&& echo "Zip file: $zipfolder.zip" >&2 \
+&& exit 0
