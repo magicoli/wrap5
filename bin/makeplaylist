@@ -3,6 +3,12 @@
 PGM=`basename "$0"`
 TMP="/tmp/$PGM.$$"
 
+esc_html() {
+  string="$@"
+  # Escape any single quotes
+  echo "$string" | sed "s/'/\\\\\\\'/g"
+}
+
 echo "<?php"
 
 if [ "$1" = "-s" ]
@@ -53,7 +59,7 @@ do
 	name=$(basename "$name" | sed "s|-SLASH-|/|g" | sed "s|\.[a-zA-Z0-9]*$||")
 	#file=$name
 	name=`echo "$name" | sed "s/\.[a-zA-Z0-9]*$//" | sed "s/_/ /g" | sed "s/[-\. ][0-9]*$//"`
-	name=$(echo "$name" | sed "s/^title[0-9]*[[:blank:]|]*//")
+	name=$(esc_html "$name")
 	second=`echo "$file" | egrep "^[0-9]*,[0-9]*-" | cut -d "-" -f 1 | grep "," | cut -d "," -f 2`
 	first=`echo "$file" | egrep "^[0-9]" | cut -d "-" -f 1 | cut -d "," -f 1`
 
@@ -86,6 +92,7 @@ do
 		mp4=../.mp4/$(basename "$file" .mov).mp4
 		[ -f "$mp4" ] && file=$mp4 && res="" || res="(HD)"
 		name=$(egrep "^$nr[[:blank:],-]" liste | sed "s/[0-9,-]*[[:blank:]][[:blank:]]*//")
+		name=$(esc_html "$name")
 		time=$(grep "^$nr.mov" times | cut -d " " -f 2 | sed "s/00://" | sed "s/:/\\\\'/")
 		printf "\t\"$file\" => '$nr - $name $res $time',\n"
 		# printf "\t\"$file\" => '$name$infohtml',$infocomment\n"
