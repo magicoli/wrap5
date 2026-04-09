@@ -9,7 +9,23 @@ TMP="/tmp/$PGM"
 
 ls casting*/playlist.php 2>/dev/null || exit 1
 
+base=$(pwd)
+ls casting*/.sources/liste 2>/dev/null || while read liste
+do
+	cd $base/$(dirname "$liste") || exit 3
+	makeplaylist "$list" | sed "s/\$reserve=/\$customnames=/" > ../playlist.php || exit 4
+done
+
 castings=$(ls -d casting* | sed -E "s/^([a-z]+)([0-9]+)/\\2\t\\1\\2/" | sort -n | cut -f 2-)
+
+# grep -h // casting*/.sources/liste \
+# | sed -e "s:.*// *::" -e "s/ *, */\n/g" \
+# | sort -u | while read label; do
+# 	tag=$(webnormalize "$label")
+# 	mkdir -p _$tag
+# 	echo "$label" > _$tag/_pagetitle.txt
+# 	printf "%s\t%s\n" "$tag" "$label"
+# done > $TMP.roles
 
 grep "//" casting*/playlist.php | sed "s|.*, *//[[:blank:]]*||" | while read roles
 do
