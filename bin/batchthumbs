@@ -20,7 +20,13 @@ cat "$list" \
 	| sed -e "s:#.*::" \
  	| sed "s/[[:blank:]][[:blank:]]*/ /g" | egrep "[A-Za-z]" | while read index name
 do
-	echo "$index" | egrep "[#/]" && continue
+	# Check if this is a section line and pass it through
+	if echo "$index $name" | grep -q "^\s*//\s*section:"; then
+		echo "$index $name" >> "$TMP.list"
+		continue
+	fi
+
+	echo "$index" | egrep -q "^\s*(#|//)" && continue
 		nr=$(echo $index | sed "s/[^0-9].*//")
 	[ "$name" = "" ] && continue
 	echo "$name" >> "$TMP.list"
