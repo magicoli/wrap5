@@ -1,0 +1,23 @@
+#!/bin/bash
+
+set -eu
+
+ls -d casting*/ >/dev/null
+ls -d _*/ >/dev/null
+
+echo rezipping $(basename "$PWD")
+echo folders: $(ls -d _*/)
+
+mkdir -p .tmp && cd $_
+for zip in ../_*/*.zip
+do 
+    echo "# $zip"
+    name=$(basename $zip .zip)
+    rm -rf $name/ && echo $name
+    unzip $zip || echo "ignoring unzip errors"
+    [ -d "$name" ] && echo "$zip clean" && continue
+    mv -v "_$name" "$name" || ls -d $name/ || break
+    zip -r $name.zip $name/ || break
+    mv -v $name.zip $zip
+    echo "  $name success"
+done
