@@ -1,0 +1,201 @@
+#!/bin/bash
+
+# Note for later: check comparison of aac encoders
+#     aac, libfaac, libfdk_aac, libvo_aacenc
+# https://trac.ffmpeg.org/wiki/AACEncodingGuide
+# Best encoders: libfdk_aac > libfaac > Native FFmpeg AAC ≥ libvo_aacenc
+
+PGM=`basename "$0"`
+TMP=/tmp/$PGM.$$
+TURBO=true
+EXT=mp4
+DEBUG=yes
+
+[ -f $(dirname "$0")/casting-helpers ] && . $(dirname "$0")/casting-helpers || exit 1
+
+#which avconv | grep -q avconv || alias avconv=avconv
+#avconv -version >/dev/null 2>/dev/null || exit $?
+
+list=$1
+format=$2
+[ ! $format ] && format=web
+
+if [ ! $EXT ]
+	then
+	EXT=mov
+fi
+
+lastnumber=$(ls *.mov 2>/dev/null | sort -n | tail -1 | cut -d "." -f 1)
+if [ $lastnumber ]
+	then
+	lastnumber=$(($lastnumber + 1))
+else
+	lastnumber=9999999
+fi
+
+index2list()
+{
+	local IFS=,
+	for index in $@
+	do
+		echo $index | grep -qv "-" && echo $index && continue
+		i=$(echo $index | cut -d- -f 1)
+		[ ! "$i" ] && i=0
+		j=$(echo $index | cut -d- -f 2)
+		echo "$i" | grep -q "[^0-9,-]" && end 1 "var i $i is not a number"
+		echo "$j" | grep -q "[^0-9,-]" && end 1 "var i $j is not a number"
+		if [ "$i" -le "$j" ]
+		then
+			while [ $i -le $j ]
+			do
+				echo $i
+				i=$(($i + 1))
+			done
+		else
+			while [ $i -ge $j ]
+			do
+				echo $i
+				i=$(($i - 1))
+			done
+		fi
+	done
+}
+
+makemovie()
+{
+	[ ! "$2" ] && echo "usage makemovie index name $@" >&2 && return
+	local index=$1
+	shift
+	showname=$@
+
+	filename=$(echo "$showname" | webnormalize | sed "s|_*/_*|_|g")
+	case $format in
+		"web")
+		convertfolder=$SDDIR
+		output_file="$filename.$EXT"
+		output="$WEBDIR/$filename.$EXT"
+		scale=640x360
+		videorate=800k
+		;;
+		"large")
+		scale=1920x1080
+		videorate=2000k
+		convertfolder=$HDDIR
+		output="$WEBDIR/$filename-large.$EXT"
+		;;
+		# "dvd")
+		# scale=1024x576
+		# videorate=3000k
+		# convertfolder=../dv
+		# output="../dv/$filename.dv"
+		# ;;
+		*)
+		echo format: $format >&2
+		return
+		;;
+	esac
+	# printf "$showname "
+
+	cd "$convertfolder" || exit $?
+	convertfolder="$PWD"
+	cd "$OLDPWD"
+
+	export convertfolder
+	export scale
+	export videorate
+	# export output
+
+	# printf " ($index)"
+	printf "" > $TMP.sources
+	printf "" > $TMP.aliases
+	first=$(index2list $index | head -1)
+	for nr in $(index2list $index)
+	do
+		cp ignore .ignore.$$ 2>/dev/null || touch .ignore.$$
+		if [ $nr -ne $first ]
+		then
+			grep -q "^$nr\." .ignore.$$ 2>/dev/null && continue
+		fi
+		# printf " $nr"
+		# echo "$convertfolder/$nr.mp4" >> $TMP.sources
+		# alias=$(ls -t $nr.mov $nr.mp4 $nr.MP4 $nr.MTS 2>/dev/null | head -1)
+		alias=$nr.mov
+		echo "$alias" >> $TMP.aliases
+		# [ ! "$alias" ] && printf "\?" && continue
+		# input=$(grep "\s$alias$" .aliases | sed "s/\s[0-9]*\.[[:alnum:]]*$//")
+		# # echo "file '$convertfolder/$nr.mp4'" >> $TMP.sources
+		# mp4output="$convertfolder/$nr.mp4"
+		# if [ ! -f "$mp4output" ]
+		# # if [ ! -f "$0" ]
+		# then
+		# 	printf "(c)"
+		# 	rm -f "$mp4output"
+		# 	makemp4 -o "$mp4output" "$input" 2>/dev/null
+		# 	ffprobe -i "$mp4output" 2>/dev/null \
+		# 	&& printf "\b\b\b   \b\b\b" \
+		# 	|| {
+		# 		printf "\b\b\b[$?]"
+		# 		rm -f "$mp4output"
+		# 	}
+		# fi
+		rm .ignore.$$
+	done
+	# printf "\n"
+	# sources=$(cat $TMP.sources | tr "\n" " ")
+	aliases=$(cat $TMP.aliases | tr "\n" " ")
+	echo "$output_file $aliases"
+
+	# echo $output $sources
+	# return
+	
+	# if [ -f $output ]
+	# then
+	# 	echo "$output ok" > $TMP.log
+	# else
+	# 	ls -1 $sources >/dev/null 2>/dev/null
+	# 	if [ $? -eq 0 ]
+	# 	then
+	# 		if [ -f "$TMP.sources" ]
+	# 		then
+				# printf "$sources" | sed -e "s|$convertfolder/*||g" -e "s/\.mp4/\.mov/g"
+				# echo
+	# 			moviemerge "$output" $sources 2>/dev/null || log "merge failed $?"
+	# 		fi
+	# 	fi
+	# fi
+}
+
+cat $list | sed -e "s://.*::" -e "s:#.*::" | egrep "^[0-9]" \
+| while read index name
+do
+	# log "index '$index' name '$name'"
+	# echo "$index" | grep -q "[^0-9,-]" && echo "Wrong index: in '$index $name'" >&2 && begin= && showname= && theend= && continue
+	echo "$index" | grep -q "[^0-9,-]" && log 1 "Wrong index '$index': in '$index $name', skipping" && continue
+
+	if [ $begin -a "$showname" ]
+	then
+		theend=$(echo $index | sed "s/[^0-9].*//")
+		[ $theend -gt $begin ] || end 1 "end $theend lower than begin $begin"
+		# echo pending $begin-$(($theend - 1)) $showname
+		makemovie $begin-$(($theend - 1)) $showname
+		showname=
+	fi
+	begin=
+	showname=
+	echo $index | grep -q "[,-]"
+	if [ $? -eq 0 ]
+	then
+		# echo "proceed now $index $name"
+		[ ! "$name" ] && continue
+		# log "makemovie $index $name"
+		makemovie $index $name
+		continue
+	else
+		if [ "$name" ]
+		then
+			begin=$index && showname=$name
+		fi
+		continue
+	fi
+	log "processed $index $name"
+done
