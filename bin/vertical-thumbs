@@ -10,6 +10,7 @@ do
     cp .browsercache/$(basename $file .mp4)-thumb.jpg .sources/.browsercache/$m-thumb.jpg
     large=.sources/.browsercache/$m-large.jpg
     width=$(identify $large | cut -d " " -f 3 | cut -d x -f 1)
+    [ "$width" ] || continue
     height=$((width * 16 / 9))
     convert -resize ${width}x$height\! $large $large.tmp.jpg && mv $large.tmp.jpg $large
     cp $large .browsercache/$(basename $file .mp4)-large.jpg
