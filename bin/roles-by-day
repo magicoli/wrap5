@@ -3,82 +3,101 @@
 echo "On $(hostname) at $(date)"
 
 basename $PWD | grep -q "^\.sources$" && cd ..
+export PATH=$(dirname $0):$PATH
+export PATH=/opt/magic/bin:$PATH
 
 . /opt/wrap/bin/casting-helpers || exit $?
 realPGM=$(realpath $0)
+
+[ "$1" = "-l" ] && loop=yes && shift
 
 function fail {
     end $*
 }
 
 server=$(echo $remote | grep ":" | cut -d: -f1)
-echo Casting $client/$job/$casting
-if [ "x$server" != "x" ]
-then
-    serverbase=$(echo $remote | cut -d: -f2)
-    remotedir=$serverbase/$client/$job/$casting
-    log "remote dir: $remotedir"
-    log "Running from client"
-    log "updating $PGM on $server"
-    log "rsync $realPGM $server:/opt/wrap/bin/"
-    rsync $realPGM $server:/opt/wrap/bin/ || exit $?
-    log "executing remote $server:$PGM $client $job"
-    ssh -t $server "PATH=/opt/wrap/bin:/opt/magic/bin:\$PATH
-cd $remotedir && DEBUG=$DEBUG /opt/wrap/bin/$PGM" || exit $?
-    exit $?
-fi
 
-log "Processing $(pwd)"
-job_base=$base/$client/$job
-casting_base=$job_base/$job/$casting
-log job_base $job_base
-log casting_base $casting
-
-log updating roles
-
-cd $job_base && castingrolesbycomment || fail $?
-makefolderlist > playlist.php
-grep // casting*/playlist.php | while read line
+while true
 do
-    tag=$(echo "$line" | sed "s:.*//\s*::")
-    label=$(echo "$line" | sed "s/.*<span class=info>//" | cut -d"<" -f 1 | cut -d "," -f 1)
-    echo "$label" > $tag/_pagetitle.txt
-done
+    echo Casting $client/$job/$casting
+    if [ "x$server" != "x" ]
+    then
+        serverbase=$(echo $remote | cut -d: -f2)
+        remotedir=$serverbase/$client/$job/$casting
+        log "remote dir: $remotedir"
+        log "Running from client"
+        log "updating $PGM on $server"
+        log "rsync $realPGM $server:/opt/wrap/bin/"
+        rsync $realPGM $server:/opt/wrap/bin/ || exit $?
+        log "executing remote $server:$PGM $client $job"
+        ssh -t $server "PATH=/opt/wrap/bin:/opt/magic/bin:\$PATH
+        cd $remotedir && DEBUG=$DEBUG /opt/wrap/bin/$PGM" || exit $?
+        exit $?
+    fi
 
-log "updating roles labels"
-grep // casting*/playlist.php | while read line
-do
-    tag=$(echo "$line" | sed "s:.*//\s*::")
-    label=$(echo "$line" | sed "s/.*<span class=info>//" | cut -d"<" -f 1 | cut -d "," -f 1)
-    echo "$label" > $tag/_pagetitle.txt
-done
+    log "Processing $(pwd)"
+    job_base=$base/$client/$job
+    casting_base=$job_base/$casting
+    log job_base $job_base
+    log casting_base $casting
 
-log "Processing $casting"
-cd $casting || fail $?
+    log updating casting playlist
+    cd $casting_base/.sources && pwd && batchthumbs liste > ../playlist.php || fail $?
 
-log looking for roles in $job_base
-$role_days=""
-grep -l "../$casting/" $job_base/_*/playlist.php | while read playlist
-do
-    main_role_dir=$(dirname $playlist)
-    role=$(basename $(dirname $playlist))
-    # role=$(basename $role)
-    role_day="${role}-$casting"
-    echo "$role ($role_day)"
-    rsync -Waz $main_role_dir/ $role_day/ || fail $?
-    sed -i "s:\"../$casting/:\":" $role_day/playlist.php;
-    grep "=>" $role_day/playlist.php | cut -d '"' -f 2 | while read file
+    log updating job roles
+    cd $job_base && pwd && castingrolesbycomment || fail $?
+    makefolderlist > playlist.php
+
+    cd $casting_base && egrep -w "_femme|Femme" ../playlist.php playlist.php .sources/liste $TMP.roles 2>/dev/null | sed "s/^/DEBUG /"
+
+    cd $job_base
+    grep -h // casting*/.sources/liste \
+    | sed -e "s:.*// *::" -e "s/ *, */\n/g" \
+    | sort -u | while read label; do
+        tag=$(webnormalize "$label")
+        mkdir -p _$tag
+        echo "$label" > _$tag/_pagetitle.txt
+        printf "%s\t%s\n" "$tag" "$label"
+    done > $TMP.roles
+
+    log "Processing $casting"
+    cd $casting || fail $?
+
+    log looking for roles in $job_base
+    role_days=""
+    grep -l "../$casting/" $job_base/_*/playlist.php | while read playlist
     do
-        [ -f $file ] || fail 1 "Missing $file"
-        ## clear remaining of line
-        printf "  %s ..." "$file"
-        rsync -Waz $file $role_day/ || fail $?
-        thumbs=$(basename $file | sed "s:\.[a-zA-Z0-9]*$::")
-        rsync -Waz .browsercache/$thumbs-* $role_day/.browsercache/ || fail $? 
-        printf "\r\33[2K"
-        # printf "\n"
+        main_role_dir=$(dirname $playlist)
+        role="$(basename $(dirname $playlist))"
+        # role=$(basename $role)
+        role_day="${role}-$casting"
+        echo "$role ($role_day) $playlist"
+
+        rsync -Waz $main_role_dir/ $role_day/ --exclude "*.zip" --exclude "*.mp4" || fail $?
+        (
+            grep -B999 "=>" $main_role_dir/playlist.php | grep -v "=>" 
+            grep "=>" $main_role_dir/playlist.php \
+            | grep "../$casting/" \
+            | sed "s:\"../$casting/:\":"
+            grep -A999 "=>" $main_role_dir/playlist.php | grep -v "=>" 
+        ) > $role_day/playlist.php
+        grep "=>" $role_day/playlist.php | cut -d '"' -f 2 | while read file
+        do
+            [ -f $file ] || fail 1 "Missing $file"
+            ## clear remaining of line
+            printf "  %s ..." "$file"
+            rsync -Waz $file $role_day/ || fail $?
+            thumbs=$(basename $file | sed "s:\.[a-zA-Z0-9]*$::")
+            rsync -Waz .browsercache/$thumbs-* $role_day/.browsercache/ || fail $? 
+            printf "\r\33[2K"
+            # printf "\n"
+        done
     done
+    makefolderlist >> playlist.php
+
+    [ "$loop" = "yes" ] || break
 done
+
 echo "zipping roles for $casting"
 zipfile="$casting-roles.zip"
 zip -qr $zipfile _*-$casting/*.mp4 || fail $?
