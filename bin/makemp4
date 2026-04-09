@@ -260,7 +260,6 @@ do
     else
       unset vfilterblur
     fi
-
     # params="-ac 2 -acodec $acodec -ab $audiorate $loudnorm -vcodec $vcodec $profile $preset -vb $videorate -maxrate $videorate -bufsize $buffer -pix_fmt yuv420p -vf scale=iw/ih*$oh:$oh$vfilterblur"
     params="-ac 2 -acodec $acodec -ab $audiorate $loudnorm -vcodec $vcodec $profile $preset -vb $videorate -maxrate $videorate -bufsize $buffer -pix_fmt yuv420p -vf scale=$resized_width:$oh$vfilterblur"
   else

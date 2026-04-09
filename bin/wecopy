@@ -1,0 +1,139 @@
+#!/bin/sh
+
+extensions='\.(MTS|MPG|MOV|MP4|MXF|MKV)$'
+THUMBOFFSET=0
+MOVEORIGINALS=${MOVEORIGINALS:-yes}
+MOVEPREFIX=../.originals
+
+export PATH=$(dirname "$0"):$PATH
+[ -f $(dirname "$0")/casting-helpers ] && . $(dirname "$0")/casting-helpers || exit 1
+
+if [ "$1" = "-l" ]
+then
+	method=link
+	shift
+else
+	method=copy
+fi
+
+if [ ! "$@" ]
+then
+	director=$(pwd | sed "s|.*/castings/||" | cut -d / -f 1);
+	sources=~/castings/$director/upload/server/php/files/
+	isupload=1
+else
+	isupload=0
+	MOVEORIGINALS=no
+fi
+
+if [ "$MOVEORIGINALS" = "yes" ]
+then
+	[ ! "$MOVEPREFIX" ] && MOVEPREFIX=moved
+	lastmove=$(ls -d "$MOVEPREFIX".* 2>/dev/null | sed "s/.*\.//" | sort -n | tail -1 | grep "[0-9]" || echo 0)
+	movedir=$MOVEPREFIX.$(($lastmove + 1))
+	mkdir -p "$movedir" || end 1 "Could not create moved directory $movedir"
+	log "$method destination $movedir"
+else
+	log "$method"
+fi
+
+lastalias=$(
+	(
+		ls *.mov 2>/dev/null
+		#	cat .aliases 2>/dev/null | cut -f 2
+	) \
+	| cut -d "." -f 1 | sort -n | tail -1  | sed "s/^$/0/" \
+	| grep [0-9] || echo 0
+)
+s=$(($lastalias + 1))
+log "start with $s"
+lastimport=$(cat .aliases 2>/dev/null | cut -f 1 | sort -n | tail -1 | sed "s/_.*CANON.*//" | cut -d "." -f 1 | sed -e "s/[^0-9]//g" -e "s/^0*//" | grep [0-9] || echo 0)
+echo "previous count: $lastimport" >&2
+echo "last: $(tail -1 .aliases 2>/dev/null || echo new session)" >&2
+
+#i=$(ls *.mov 2>/dev/null | cut -d "." -f 1 | sort -n | tail -1  | sed "s/^$/0/")
+i=$lastalias
+delta=$((lastalias - $lastimport))
+
+for source in $sources "$@"
+do
+	log checking source $source
+	[ ! -d "$source" ] && echo "ignoring $source" >&2 && continue
+	source=$(echo "$source" | sed "s%/$%%")
+
+	pwd | xargs basename | egrep -q "^\.*sources[0-9]*$" || exit 2
+
+	log "source: $source"
+
+	# ls "$source/"*.MPG "$source/"*.MP4 "$source/"*.MOV "$source/"*.MTS 2>/dev/null > $TMP.movies
+	l=$( ( [ -f .last ] && cat .last || echo 0 ) | sed "s/_.*CANON.*//" | cut -d . -f 1 | sed -e "s/^[a-zA-Z]*0*\([0-9\]\)/\\1/" -e "s/[^0-9]//g" | sort -n | tail -1)
+
+	# cd "$source" || break
+	if [ $isupload -eq 1 ]
+	then
+		ls "$source" 2>/dev/null | sort -n | while read file
+		do
+			n=$(echo $file | sed "s/_.*CANON.*//" | cut -d . -f 1 | sed "s/^[a-zA-Z]*0*\([0-9\]\)/\\1/" | sed "s/[^0-9]//g")
+			[ "$n" = "$l" ] && echo "$file" && continue
+			p=$(($n -1)); [ "$p" = "$l" ] && echo "$file" || break
+			l=$n
+		done | sed "s:^:$source/:" 
+	else
+		find "$source" -type f | sort -n
+	fi | egrep -i "$extensions" 2>/dev/null | sort -n | while read file
+	do
+		grep -q "^$file" .aliases 2>/dev/null && log "$file already imported, ignoring" && continue
+		echo "$file"
+	done
+
+
+done | egrep -v "/\.makemp4|\.processing" > $TMP.movies
+
+count=$(cat $TMP.movies | wc -l)
+cat $TMP.movies
+echo "$count files to import" >&2
+
+cat $TMP.movies | sort -n | while read file
+do
+	i=$(($i + 1))
+	#	j=$(($s + $i))
+	#	j=$(basename "$file" | sed "s/\..*$//" | sed "s/[^0-9]//" | sed "s/^0*//" | sed "s/^$/0/")
+	#	j=$(($s + $j))
+
+	alias=$i.mov
+	#	qt-thumbnailswide.sh -l -1 "$alias"
+	egrep "^$file " .aliases 2>/dev/null && log 1 "$file already there" && continue
+	[ -f "$alias" ] && end 1 "duplicate $alias for" $(basename $file)
+	[ ! -f "$file" ] && log "$file vanished" && continue
+
+	if [ "$MOVEORIGINALS" = "yes" ]
+	then
+		mv -v "$file" "$movedir/" \
+		&& basename "$file" > .last \
+		|| end 1 "error moving $file to $movedir"
+
+		origin="$movedir/$(basename "$file")"
+	else
+		origin="$file"
+	fi
+	if [ "$method" = "copy" ]
+	then
+		printf "$origin "
+		cp -l "$origin" $alias \
+		&& printf "$origin\t$alias\n" >> .aliases \
+		&& printf " > $alias "
+	else
+		ln -s "$origin" $alias \
+		&& printf "$origin\t$alias\n" >> .aliases \
+		&& printf " > $alias "
+	fi
+	qt-thumbnailswide.sh -l -$THUMBOFFSET "$alias"
+	log files: $(ls *.mov | wc -l)
+done
+echo $(ls "$source" 2>/dev/null | egrep -i "$extensions" 2>/dev/null) | grep . | sed "s/^/$(cat .last 2>/dev/null) /" | grep --color " .*"
+echo "$(ls "$source"  2>/dev/null | egrep -i "$extensions" | wc -l) files remaining"
+rmdir "$movedir" 2>/dev/null
+
+movietime $(ls *.mov 2>/dev/null | sort -n) | tee times.$$ | tail -2; mv times.$$ times
+
+end
