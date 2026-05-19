@@ -1,7 +1,14 @@
 #!/bin/bash
 
-cat | while read file
+if [ -z "$1" ]; then
+    cat
+else
+	for file in "$@"; do
+		echo "$file"
+	done
+fi | while read file
 do
+	[ ! -f "$file" ] && echo "File not found: $file" && continue
     n=$(echo $file | cut -d "-" -f 1)
     m=$(grep "\s$n-" .sources/liste | sed "s/[^0-9]/ /g" | cut -d " " -f 1)
     t=$(cat .sources/.$m.thumbtime 2>/dev/null || grep "^$m.mov" .sources/times | sed -E "s/.*\s([0-9]+)\s*$/\\1/")
@@ -14,4 +21,5 @@ do
     height=$((width * 16 / 9))
     convert -resize ${width}x$height\! $large $large.tmp.jpg && mv $large.tmp.jpg $large
     cp $large .browsercache/$(basename $file .mp4)-large.jpg
+    grep -q "^$file$" .vertical || echo "$file" >> .vertical
 done
