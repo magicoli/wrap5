@@ -1,3 +1,6 @@
 [submodule "contrib/jQuery-File-Upload"]
 	path = src/legacy/contrib/jQuery-File-Upload
 	url = https://github.com/blueimp/jQuery-File-Upload.git
+[submodule "lib/iamleot/transferwee"]
+	path = lib/iamleot/transferwee
+	url = https://github.com/iamleot/transferwee
