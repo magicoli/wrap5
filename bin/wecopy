@@ -16,6 +16,12 @@ else
 	method=copy
 fi
 
+# Documents are organised slightly differently server-side and client-side
+cat ../../casting*/.sources/.aliases >> $TMP.aliases 2>/dev/null
+cat ../casting*/aliases >> $TMP.aliases 2>/dev/null 2>/dev/null
+
+wc -l $TMP.aliases
+
 if [ ! "$@" ]
 then
 	director=$(pwd | sed "s|.*/castings/||" | cut -d / -f 1);
@@ -47,7 +53,7 @@ lastalias=$(
 )
 s=$(($lastalias + 1))
 log "start with $s"
-lastimport=$(cat .aliases 2>/dev/null | cut -f 1 | sort -n | tail -1 | sed "s/_.*CANON.*//" | cut -d "." -f 1 | sed -e "s/[^0-9]//g" -e "s/^0*//" | grep [0-9] || echo 0)
+lastimport=$(cat .aliases $TMP.aliases 2>/dev/null | cut -f 1 | sort -n | tail -1 | sed "s/_.*CANON.*//" | cut -d "." -f 1 | sed -e "s/[^0-9]//g" -e "s/^0*//" | grep [0-9] || echo 0)
 echo "previous count: $lastimport" >&2
 echo "last: $(tail -1 .aliases 2>/dev/null || echo new session)" >&2
 
@@ -77,12 +83,12 @@ do
 			[ "$n" = "$l" ] && echo "$file" && continue
 			p=$(($n -1)); [ "$p" = "$l" ] && echo "$file" || break
 			l=$n
-		done | sed "s:^:$source/:" 
+		done | sed "s:^:$source/:"
 	else
 		find "$source" -type f | sort -n
 	fi | egrep -i "$extensions" 2>/dev/null | sort -n | while read file
 	do
-		grep -q "^$file" .aliases 2>/dev/null && log "$file already imported, ignoring" && continue
+		grep -qF "$file	" .aliases $TMP.aliases 2>/dev/null && log "$file already imported, ignoring" && continue
 		echo "$file"
 	done
 
@@ -102,7 +108,7 @@ do
 
 	alias=$i.mov
 	#	qt-thumbnailswide.sh -l -1 "$alias"
-	egrep "^$file " .aliases 2>/dev/null && log 1 "$file already there" && continue
+	grep -qF "$file	" .aliases $TMP.aliases 2>/dev/null && log 1 "$file already there" && continue
 	[ -f "$alias" ] && end 1 "duplicate $alias for" $(basename $file)
 	[ ! -f "$file" ] && log "$file vanished" && continue
 
