@@ -1,11 +1,22 @@
-# Web Reel Advanced Publishing: it's a W.R.A.P.
+# Web Reel Automated Publishing: it's a W.R.A.P.
 
-![Version 5.0.2-dev-2](https://badgen.net/badge/Version/5.0.2-dev-2/333333)
-![Stable 5.0.1](https://badgen.net/badge/Stable/5.0.1/00aa00)
-![Requires PHP 7.4](https://badgen.net/badge/PHP/7.4/7884bf)
-![License AGPLv3 or later](https://badgen.net/badge/License/AGPLv3%20or%20later/552b55)
+![Version](https://img.shields.io/badge/Version-3.5.0-lightgrey)
+![Stable](https://img.shields.io/badge/Stable-3.1.1-green)
+![Requires](https://img.shields.io/badge/PHP-8.3-7884bf)
+![License](https://img.shields.io/badge/License-AGPLv3-552b55)
+[![Donate](https://img.shields.io/badge/-Donate-yellow)](https://magiiic.org/donate/)
 
-Wrap is a back to the basics CMS, aimed to display mostly galleries of images or videos.
+- Version: 3.0.3
+- Project URI: https://wrap.rocks/
+- GitLab URI: https://git.magiiic.com/magicoli/wrap
+- Donate link: https://paypal.me/magicoli
+- Author: Magiiic
+- Author URI: https://magiiic.com/
+- Text Domain: wrap
+- Domain Path: /languages
+- License: GNU Affero GPL v3.0 (AGPLv3)
+
+Wrap is a basic CMS, aimed to display mostly galleries of images or videos.
 The idea is to allow the website maintainer to push media in subfolders.
 The structure of the websites and the menus is detected automatically.
 
@@ -16,42 +27,32 @@ It is designed for fast, efficient media transmission. Although it is
 possible to make a pretty beautiful website with this system (and I did), it's
 not the goal.
 
+It is poorly documented, but it works now with PHP7 (and probably 8).
+
 ## Installation
 
-1. VERY IMPORTANT: **Install this project outside your web directory**, as it contains
+- VERY IMPORTANT: **Put this project outside your web directory**. It contains
   unprotected scripts and tools aimed to alter your disk content
-    ```bash
-    git clone https://github.com/magicoli/wrap wrap5 --branch 5.x
-    sudo mv wrap5 /opt/
-    cd /opt/wrap5/
-    composer update # see below for php < 8.2
-    npm update
-    cp .htaccess wrap-loader.php /var/www/html/ # or where your web root is
-    ```
-2. make a "data" directory alongside your document root. E.g. if your document root is /var/www/html, create /var/www/data
-    ```bash
-    mkdir /var/www/data
-    ```
+- bin/ tools are not needed for web publishing. They are used to manipulate
+  video files. If you only need to publish ready to use files, you can safely
+  (and should) remove bin/ folder
+- In your apache config, add alias, rules and wrap.php as DirectoryIndex:
+  ```
+  Alias /wrap/ /opt/wrap/
+  DirectoryIndex index.php index.html /wrap/wrap.php
 
-### If Apache2 open_basedir is set
-
-Add wrap folder, data folder, as well as ffmpeg and ffprobe binaries to base dir like this (adjust to your setup):
-```
-  php_admin_value open_basedir "/opt/wrap5:/usr/bin/ffmpeg:/usr/bin/ffprobe:/var/www/data:<<whatever config you already have>>"
-```
-
-### Note for PHP < 8.2
-
-Project is compatible with PHP version 7.4 and later. However, it was built with PHP 8.2. 
-
-No worry! If you encounter the error:
-```
-Composer detected issues in your platform: Your Composer dependencies require a PHP version ">= 8.2.0".
-```
-
-run from within your wrap directory: 
-```bash
-composer config platform.php 7.4 # or whatever version configured in Apache
-composer update
-git checkout -- composer.json # revert to allow future git updates
-```
+  <Directory /opt/wrap/>
+    <IfVersion < 2.3>
+      Order allow,deny
+      Allow from all
+    </IfVersion>
+    <IfVersion >= 2.3>
+    Require all granted
+    </IfVersion>
+    AllowOverride All
+  </Directory>
+  ```
+- you can place wrap.css and wrap.html in your web root folder to customize layout
+- use themes/bootstrap/page-template.html as base for wrap.html and be sure to
+  include all needed shortcodes
+- More on this later...
