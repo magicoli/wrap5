@@ -1,0 +1,39 @@
+# W.R.A.P. 5 command-line tools, built by apt-package (apt-repo).
+# ${VERSION} comes from the git tag. The tools find their helpers next to them:
+# their folder is added to the PATH, rather than linked in /usr/local/bin.
+name: wrap5-tools
+arch: all
+platform: linux
+version: ${VERSION}
+version_schema: semver
+section: video
+priority: optional
+maintainer: Magiiic <bagagiste@magiiic.com>
+description: W.R.A.P. 5 command-line tools for casting sessions (transitional)
+homepage: https://github.com/magicoli/wrap5
+license: AGPL-3.0-or-later
+
+depends:
+  - bash
+  - bc
+  - ffmpeg
+recommends:
+  - imagemagick
+  - openssh-client
+  - php-cli
+  - rsync
+  - screen
+  - zip
+suggests:
+  - libnotify-bin
+
+contents:
+  - src: bin
+    dst: /usr/local/lib/wrap5-tools/bin
+    type: tree
+  # Adds the tools to the PATH of login shells
+  - src: packaging/wrap5-tools.profile.sh
+    dst: /etc/profile.d/wrap5-tools.sh
+    type: config
+    file_info:
+      mode: 0644

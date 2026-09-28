@@ -1,20 +1,19 @@
-# Web Reel Automated Publishing: it's a W.R.A.P.
+# W.R.A.P. Legacy (Transitional)
 
-![Version](https://img.shields.io/badge/Version-3.5.0-lightgrey)
-![Stable](https://img.shields.io/badge/Stable-3.1.1-green)
-![Requires](https://img.shields.io/badge/PHP-8.3-7884bf)
-![License](https://img.shields.io/badge/License-AGPLv3-552b55)
+![Stable](https://img.shields.io/github/release/magicoli/wrap5?label=stable&color=green&include_prerelease)
+![GitHub Tag](https://img.shields.io/github/tag/magicoli/wrap5?label=latest&include_prereleases)
+![GitHub commits since latest release](https://img.shields.io/github/commits-since/magicoli/wrap5/latest?label=dev)
+![PHP](https://img.shields.io/badge/PHP-8.2+-7884bf)
+[![License](https://img.shields.io/badge/license-AGPL--3.0-552b55)](LICENSE)
+![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/magicoli/wrap5/total)
 [![Donate](https://img.shields.io/badge/-Donate-yellow)](https://magiiic.org/donate/)
 
-- Version: 3.0.3
-- Project URI: https://wrap.rocks/
-- GitLab URI: https://git.magiiic.com/magicoli/wrap
-- Donate link: https://paypal.me/magicoli
-- Author: Magiiic
-- Author URI: https://magiiic.com/
-- Text Domain: wrap
-- Domain Path: /languages
-- License: GNU Affero GPL v3.0 (AGPLv3)
+This is a transitional package including the legacy version of the CMS (3.1.1) and a port of the command-line tools from version 5.5.0. It will not receive any further updates. All new development will take place in separate projects within the 6.x branch:
+
+- **[magicoli/wrap-app](https://github.com/magicoli/wrap-app)**: a brand-new, modern application that covers not only the features of the legacy CMS but also a wide range of new capabilities.
+- **[magicoli/wrap-tools](https://github.com/magicoli/wrap-tools)**: command-line tools only.
+
+## Original Description
 
 Wrap is a basic CMS, aimed to display mostly galleries of images or videos.
 The idea is to allow the website maintainer to push media in subfolders.
@@ -27,32 +26,18 @@ It is designed for fast, efficient media transmission. Although it is
 possible to make a pretty beautiful website with this system (and I did), it's
 not the goal.
 
-It is poorly documented, but it works now with PHP7 (and probably 8).
+It is poorly documented, and requires PHP 8.2 or later.
 
 ## Installation
 
-- VERY IMPORTANT: **Put this project outside your web directory**. It contains
-  unprotected scripts and tools aimed to alter your disk content
-- bin/ tools are not needed for web publishing. They are used to manipulate
-  video files. If you only need to publish ready to use files, you can safely
-  (and should) remove bin/ folder
-- In your apache config, add alias, rules and wrap.php as DirectoryIndex:
-  ```
-  Alias /wrap/ /opt/wrap/
-  DirectoryIndex index.php index.html /wrap/wrap.php
+The command-line tools, from the Magiiic apt repository:
 
-  <Directory /opt/wrap/>
-    <IfVersion < 2.3>
-      Order allow,deny
-      Allow from all
-    </IfVersion>
-    <IfVersion >= 2.3>
-    Require all granted
-    </IfVersion>
-    AllowOverride All
-  </Directory>
-  ```
-- you can place wrap.css and wrap.html in your web root folder to customize layout
-- use themes/bootstrap/page-template.html as base for wrap.html and be sure to
-  include all needed shortcodes
-- More on this later...
+```bash
+curl -fsSL https://apt.magiiic.com/magiiic-packaging.asc | sudo gpg --dearmor -o /usr/share/keyrings/magiiic-packaging.gpg
+echo "deb [signed-by=/usr/share/keyrings/magiiic-packaging.gpg] https://apt.magiiic.com stable main" | sudo tee /etc/apt/sources.list.d/magiiic.list
+sudo apt update && sudo apt install wrap5-tools
+```
+
+They are installed in `/usr/local/lib/wrap5-tools/bin`, added to the PATH of login shells (open a new session after installing). A `/opt/wrap/bin` folder added to the PATH, like a clone of this repository, still comes first.
+
+The CMS is a separate package, `wrap3-cms`, made from the `wrap` submodule: see [magicoli/wrap3-cms](https://github.com/magicoli/wrap3-cms) for its installation.

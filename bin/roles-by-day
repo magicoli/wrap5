@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 echo "On $(hostname) at $(date)"
 
@@ -6,7 +6,7 @@ basename $PWD | grep -q "^\.sources$" && cd ..
 export PATH=$(dirname $0):$PATH
 export PATH=/opt/magic/bin:$PATH
 
-. /opt/wrap/bin/casting-helpers || exit $?
+. "$(dirname "$0")/casting-helpers" || exit $?
 realPGM=$(realpath $0)
 
 [ "$1" = "-l" ] && loop=yes && shift

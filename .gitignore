@@ -27,3 +27,4 @@ backups/
 GEMINI.md
 data/**
 !.gitignore
+dist/
