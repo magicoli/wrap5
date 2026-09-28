@@ -1,11 +1,14 @@
 # Changelog
 
-## 3.5 transitional
+## 5.5.0 transitional
 
-- restored 3.x legacy code as submodule in wrap/ directory
-- keep 5.5 binaries
-- remove 5.5-dev app code
-- clear separation between 3.x PHP code and 5.x terminal scripts
+- new Debian package wrap5-tools, installed from the Magiiic apt repository
+- new tools: batchindex, project-roles, rezip, vertical-thumbs, wecopy
+- update 5.5 terminal tools only, 5.5-dev app code removed
+- update 3.1.1 CMS in its own repository and package, wrap3-cms, as the wrap/ submodule
+- update checkmp4 full rewrite, makemp4 loudnorm and size compatibility, makeplaylist sections, roles-by-day loop mode, mediacopy persistent sources (MOVEORIGINALS)
+- update casting-server: Zed editor, optional opening of primary files
+- fix roles-by-day loads casting-helpers next to it
 
 ## 3.1.1
 
